@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- === Game Identity === -->
+    <title>مدفع الأرقام | Number Cannon</title>
+    <meta name="description" content="لعبة تعليمية ذكية لتعلم الرياضيات عن طريق تفكيك الأرقام. تحدى أصدقاءك وحقق أعلى النتائج!">
+    <meta name="author" content="Mohammed Jabali">
+    <meta name="theme-color" content="#0a0a12">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <!-- === Favicon (Embedded SVG Base64) === -->
+    <!-- Icon: A neon green target scope with a number 7 inside -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230a0a12'/%3E%3Ccircle cx='256' cy='256' r='200' fill='none' stroke='%2300ffaa' stroke-width='30'/%3E%3Cline x1='256' y1='56' x2='256' y2='156' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Cline x1='256' y1='356' x2='256' y2='456' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Cline x1='56' y1='256' x2='156' y2='256' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Cline x1='356' y1='256' x2='456' y2='256' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-family='Arial, sans-serif' font-weight='bold' font-size='200' fill='%23ffcc00'%3E7%3C/text%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230a0a12'/%3E%3Ccircle cx='256' cy='256' r='200' fill='none' stroke='%2300ffaa' stroke-width='30'/%3E%3Cline x1='256' y1='56' x2='256' y2='156' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Cline x1='256' y1='356' x2='256' y2='456' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Cline x1='56' y1='256' x2='156' y2='256' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Cline x1='356' y1='256' x2='456' y2='256' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-family='Arial, sans-serif' font-weight='bold' font-size='200' fill='%23ffcc00'%3E7%3C/text%3E%3C/svg%3E">
+
+    <!-- === Social Media Sharing (Open Graph) === -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="مدفع الأرقام | Number Cannon">
+    <meta property="og:description" content="لعبة تعليمية ممتعة! استخدم مدفع الليزر لتفكيك الأرقام الصعبة وحلها بسرعة. هل يمكنك الوصول للحزام الأسود؟">
+    <!-- Note: For WhatsApp to show an image, 'og:image' must be a full HTTPS URL hosted online. 
+         Since this is a single offline file, it will fall back to the site icon if supported or no image. 
+         If you host this, replace the content below with your image URL. -->
+    <meta property="og:image" content="https://placehold.co/600x400/0a0a12/00ffaa/png?text=Number+Cannon&font=roboto">
+    <meta property="og:image:width" content="600">
+    <meta property="og:image:height" content="400">
+
+    <!-- Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-color: #0a0a12;
+            --text-color: #ffffff;
+            --primary: #00ffaa; /* Green Neon - Constant Numbers */
+            --secondary: #ff0055; /* Red Neon - Enemy/Wrong */
+            --accent: #00ccff; /* Blue Neon - UI Accents */
+            --variable: #ffcc00; /* Gold/Orange - Variable/Decomposed Numbers */
+            --glass: rgba(20, 20, 20, 0.9);
+            --font-main: 'Cairo', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-main);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 600px;
+            background: radial-gradient(circle at bottom, #1a1a2e 0%, #000000 100%);
+            box-shadow: 0 0 50px rgba(0, 255, 170, 0.1);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            touch-action: none;
+        }
+
+        /* Controls Layer (The Buttons) */
+        #controls-layer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 25%; /* Bottom quarter of screen */
+            display: flex;
+            z-index: 5;
+        }
+
+        .fire-btn {
+            flex: 1;
+            border: none;
+            background: rgba(255, 255, 255, 0.05);
+            border-top: 2px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            font-family: var(--font-main);
+            font-size: 1.2rem; /* Will be scaled by JS */
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            position: relative;
+            transition: background 0.1s;
+            padding: 10px;
+            text-align: center;
+            overflow: hidden;
+        }
+        
+        .fire-btn:not(:last-child) {
+            border-inline-end: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .fire-btn:active {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        
+        .fire-btn.animate::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+            animation: ripple 0.4s ease-out;
+        }
+
+        @keyframes ripple {
+            0% { transform: scale(0, 0); opacity: 0.5; }
+            100% { transform: scale(40, 40); opacity: 0; }
+        }
+
+        /* UI Overlay Layers */
+        .ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 20; /* Above controls */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .ui-content {
+            pointer-events: auto;
+            text-align: center;
+            background: var(--glass);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 255, 170, 0.3);
+            backdrop-filter: blur(10px);
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+        }
+
+        .hidden {
+            opacity: 0;
+            pointer-events: none !important;
+            display: none !important; /* Force hide to not block clicks */
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin: 0 0 1rem 0;
+            color: var(--primary);
+            text-shadow: 0 0 15px var(--primary);
+        }
+
+        button.menu-btn {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 12px 24px;
+            font-size: 1.2rem;
+            font-family: var(--font-main);
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.2s ease;
+            width: 80%;
+            text-transform: uppercase;
+        }
+
+        button.menu-btn.filled {
+            background: var(--primary);
+            color: #000;
+        }
+
+        button.menu-btn:active {
+            transform: scale(0.95);
+        }
+
+        button.small-share {
+            border-color: #fff;
+            color: #fff;
+            font-size: 1rem;
+            padding: 8px 20px;
+            margin-top: 5px;
+        }
+
+        /* Settings Bar */
+        #settings-bar {
+            position: absolute;
+            top: 10px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        .icon-btn {
+            pointer-events: auto;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            font-size: 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            cursor: pointer;
+        }
+
+        /* HUD */
+        #hud {
+            position: absolute;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .hud-item {
+            font-size: 1.4rem;
+            font-weight: bold;
+            color: #fff;
+            text-shadow: 0 0 5px #000;
+        }
+
+        /* Math styling inside buttons */
+        .math-text {
+            direction: ltr; /* Force math to be LTR */
+            display: inline-block;
+            pointer-events: none;
+        }
+        
+        /* New Classes for Color Coding */
+        .math-var { color: var(--variable); }  /* The number being split */
+        .math-const { color: var(--primary); } /* The constant multiplier */
+        .math-sym { color: #fff; opacity: 0.8; }
+
+        /* Description Text */
+        .game-desc {
+            color: #ccc;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding: 15px 0;
+        }
+
+        /* Developer Box Link Style */
+        .dev-box-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            width: 100%;
+            pointer-events: auto;
+        }
+
+        .dev-box {
+            margin-top: 20px;
+            padding: 8px;
+            background: rgba(37, 211, 102, 0.1);
+            border: 1px solid #25D366;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+        
+        .dev-box:hover {
+            background: rgba(37, 211, 102, 0.2);
+        }
+
+        .dev-box svg { fill: #25D366; width: 20px; height: 20px; }
+        .dev-text { font-size: 0.8rem; color: #fff; }
+
+        /* Animations */
+        @keyframes scanline {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+        .scanline {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, transparent, rgba(0, 255, 170, 0.05), transparent);
+            pointer-events: none;
+            z-index: 2;
+            animation: scanline 4s linear infinite;
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div class="scanline"></div>
+
+    <!-- Settings -->
+    <div id="settings-bar">
+        <div style="display:flex; gap:10px;">
+            <button class="icon-btn" onclick="game.goHome()">🏠</button>
+            <button class="icon-btn" id="lang-btn">En</button>
+            <button class="icon-btn" id="num-btn">١٢٣</button>
+        </div>
+        <button class="icon-btn" onclick="toggleTutorial()">?</button>
+    </div>
+
+    <!-- HUD -->
+    <div id="hud" class="hidden">
+        <div class="hud-item"><span id="score-label">النقاط</span>: <span id="score-val" style="color:var(--primary)">0</span></div>
+        <div class="hud-item" id="lives-val" style="color:var(--secondary)">❤❤❤</div>
+    </div>
+
+    <!-- Canvas (Projectiles, Explosions, Falling Blocks) -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Controls (The Two Big Buttons) -->
+    <div id="controls-layer" class="hidden">
+        <button class="fire-btn" id="btn-left" onpointerdown="game.fire('left')">
+            <span class="math-text" id="txt-left">...</span>
+        </button>
+        <button class="fire-btn" id="btn-right" onpointerdown="game.fire('right')">
+            <span class="math-text" id="txt-right">...</span>
+        </button>
+    </div>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="ui-layer">
+        <div class="ui-content">
+            <h1 id="game-title">مدفع الأرقام</h1>
+            
+            <p id="game-desc" class="game-desc">
+                لعبة تعليمية ذكية تعتمد على استراتيجية "التفكيك".
+                <br>
+                حول المسائل الصعبة (مثل ٧×٦) إلى مسائل أسهل لضربها بسرعة.
+                <br>
+                اللعبة تزداد سرعة مع تقدمك!
+            </p>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                <button onclick="game.startGame()" class="menu-btn filled" id="btn-start">ابــدأ التحدي</button>
+                <button onclick="shareGame()" class="menu-btn small-share" id="btn-share-main">شارك اللعبة</button>
+            </div>
+
+            <!-- Fixed WhatsApp Link using Anchor Tag -->
+            <a href="#" class="dev-box-link" target="_blank">
+                <div class="dev-box">
+                    <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+                    <div class="dev-text">تطوير: محمد جبلي</div>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div id="tutorial-modal" class="ui-layer hidden">
+        <div class="ui-content" style="max-width: 500px;">
+            <h2 id="tut-title" style="color:var(--primary)">طريقة اللعب</h2>
+            <!-- Removed fixed text-align: right to allow dir attribute to control alignment -->
+            <div style="margin: 10px 0; text-align: start;">
+                <p id="tut-step1">1. المكعب ينزل ومعه معادلة صعبة.</p>
+                <div style="text-align:center; margin:10px;">
+                    <span class="math-var" style="font-weight:900; font-size:1.5rem;">7</span>
+                    <span style="color:#fff;">×</span>
+                    <span class="math-const" style="font-weight:900; font-size:1.5rem;">6</span>
+                </div>
+                <p id="tut-step2">2. فكك الرقم البرتقالي (7) إلى رقمين سهلين.</p>
+                <div style="text-align:center; font-size:1.2rem; margin:10px;">
+                    (<span class="math-var">5</span>×<span class="math-const">6</span>) + 
+                    (<span class="math-var">2</span>×<span class="math-const">6</span>)
+                </div>
+                <p id="tut-step3">3. اضغط الزر الصحيح لإطلاق الليزر!</p>
+            </div>
+            <button class="menu-btn" onclick="toggleTutorial()" id="tut-close">فهمت!</button>
+        </div>
+    </div>
+
+    <!-- Game Over Screen -->
+    <div id="game-over-screen" class="ui-layer hidden">
+        <div class="ui-content">
+            <h1 id="go-title">انتهت اللعبة</h1>
+            <h2 id="final-score">النقاط: 0</h2>
+            <button onclick="game.restart()" class="menu-btn filled" id="btn-replay">العب مجدداً</button>
+            <button onclick="game.goHome()" class="menu-btn" id="btn-home">القائمة الرئيسية</button>
+            <button onclick="shareGame()" class="menu-btn" id="btn-share">شارك التحدي</button>
+            
+            <!-- Fixed WhatsApp Link using Anchor Tag -->
+            <a href="#" class="dev-box-link" target="_blank" style="margin-top:20px">
+                <div class="dev-box">
+                    <div class="dev-text">تطوير: محمد جبلي</div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+/* --- AUDIO SYSTEM (Synthesized) --- */
+const audio = {
+    ctx: null,
+    init: function() {
+        if (!this.ctx) this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.ctx.state === 'suspended') this.ctx.resume();
+    },
+    playTone: function(freq, type, duration, vol) {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    },
+    laser: function() {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(800, this.ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.2);
+        gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0, this.ctx.currentTime + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + 0.2);
+    },
+    explosion: function() {
+        if (!this.ctx) return;
+        this.playTone(100, 'square', 0.2, 0.2);
+        this.playTone(60, 'sawtooth', 0.3, 0.2);
+    },
+    error: function() {
+        if (!this.ctx) return;
+        this.playTone(150, 'sawtooth', 0.3, 0.3);
+        setTimeout(() => this.playTone(100, 'sawtooth', 0.3, 0.3), 100);
+    }
+};
+
+/* --- LOCALIZATION --- */
+const strings = {
+    ar: {
+        title: "مدفع الأرقام",
+        subtitle: "دمر المكعبات بالمعادلة الصحيحة",
+        desc: "لعبة تعليمية ذكية تعتمد على استراتيجية 'التفكيك'.<br>حول المسائل الصعبة (مثل ٧×٦) إلى مسائل أسهل لضربها بسرعة.<br>اللعبة تزداد سرعة مع تقدمك!",
+        start: "ابــدأ التحدي",
+        score: "النقاط", gameover: "انتهت اللعبة",
+        replay: "العب مجدداً", home: "القائمة الرئيسية", share: "شارك التحدي",
+        shareMsg: "أتحداك في لعبة مدفع الأرقام! 🚀 كم نقطة تقدر تجيب؟",
+        tutTitle: "طريقة اللعب",
+        tut1: "1. المكعب ينزل ومعه معادلة صعبة.",
+        tut2: "2. فكك الرقم البرتقالي (7) إلى رقمين سهلين.",
+        tut3: "3. اضغط الزر لإطلاق الليزر!",
+        close: "فهمت"
+    },
+    en: {
+        title: "Number Cannon",
+        subtitle: "Destroy blocks with the right equation",
+        desc: "Smart educational game using the 'Decomposition' strategy.<br>Break hard problems (like 7x6) into easier ones.<br>The game speeds up as you progress!",
+        start: "Start Challenge",
+        score: "Score", gameover: "Game Over",
+        replay: "Play Again", home: "Main Menu", share: "Share",
+        shareMsg: "I challenge you in Number Cannon! 🚀 Can you beat my score?",
+        tutTitle: "How to Play",
+        tut1: "1. A block falls with a hard equation.",
+        tut2: "2. Split the orange number (7) into two easy ones.",
+        tut3: "3. Tap the button to fire the laser!",
+        close: "Got it"
+    }
+};
+
+let currentLang = 'ar';
+let useEasternNumerals = true;
+
+const translations = {'0':'٠','1':'١','2':'٢','3':'٣','4':'٤','5':'٥','6':'٦','7':'٧','8':'٨','9':'٩'};
+function formatNum(n) {
+    if (!useEasternNumerals) return n.toString();
+    return n.toString().split('').map(c => translations[c] || c).join('');
+}
+
+function updateUI() {
+    const t = strings[currentLang];
+    document.documentElement.lang = currentLang;
+    document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
+    
+    document.getElementById('game-title').innerText = t.title;
+    // document.getElementById('game-subtitle').innerText = t.subtitle; // Removed to simplify
+    document.getElementById('game-desc').innerHTML = t.desc;
+    document.getElementById('btn-start').innerText = t.start;
+    document.getElementById('btn-share-main').innerText = t.share;
+    
+    document.getElementById('score-label').innerText = t.score;
+    document.getElementById('go-title').innerText = t.gameover;
+    document.getElementById('btn-replay').innerText = t.replay;
+    document.getElementById('btn-home').innerText = t.home;
+    document.getElementById('btn-share').innerText = t.share;
+    
+    document.getElementById('tut-title').innerText = t.tutTitle;
+    document.getElementById('tut-step1').innerText = t.tut1;
+    document.getElementById('tut-step2').innerText = t.tut2; // Now correctly updated
+    document.getElementById('tut-step3').innerText = t.tut3;
+    document.getElementById('tut-close').innerText = t.close;
+
+    document.getElementById('lang-btn').innerText = currentLang === 'ar' ? 'En' : 'عربي';
+    document.getElementById('num-btn').innerText = useEasternNumerals ? '123' : '١٢٣';
+
+    // Update WhatsApp Links dynamically based on current page URL
+    const phone = "966505501575";
+    const br = "%0A";
+    const msg = encodeURIComponent("السلام عليكم ورحمة الله وبركاته") + br + 
+                encodeURIComponent("أتواصل معاك بخصوص لعبة مدفع الأرقام") + br + br +
+                encodeURIComponent(window.location.href);
+    
+    document.querySelectorAll('.dev-box-link').forEach(a => {
+        a.href = `https://wa.me/${phone}?text=${msg}`;
+    });
+
+    // --- NEW: Update In-Game Elements Dynamically ---
+    if (game.state === 'playing' && game.currentProblem) {
+        game.currentProblem.updateStrings();
+        if (game.block) {
+            game.block.text = game.currentProblem.eq;
+        }
+        updateGameButtons();
+    }
+}
+
+function updateGameButtons() {
+    const p = game.currentProblem;
+    const btnL = document.getElementById('txt-left');
+    const btnR = document.getElementById('txt-right');
+    
+    const formatPart = (val1, val2) => {
+        return `(<span class="math-var">${formatNum(val1)}</span><span class="math-sym">×</span><span class="math-const">${formatNum(val2)}</span>)`;
+    };
+
+    const correctHTML = `${formatPart(p.x, p.b)} + ${formatPart(p.y, p.b)}`;
+    const wrongHTML = `${formatPart(p.wx, p.b)} + ${formatPart(p.wy, p.b)}`;
+
+    btnL.innerHTML = game.options.left ? correctHTML : wrongHTML;
+    btnR.innerHTML = game.options.right ? correctHTML : wrongHTML;
+}
+
+document.getElementById('lang-btn').onclick = () => { currentLang = currentLang === 'ar' ? 'en' : 'ar'; updateUI(); };
+document.getElementById('num-btn').onclick = () => { useEasternNumerals = !useEasternNumerals; updateUI(); };
+
+function toggleTutorial() {
+    const el = document.getElementById('tutorial-modal');
+    el.classList.toggle('hidden');
+}
+
+/* --- LOGIC CLASSES --- */
+class MathProblem {
+    constructor() {
+        // General difficulty range, handled by speed mostly now
+        let min = 6, max = 9;
+        
+        this.a = Math.floor(Math.random() * (max - min + 1)) + min;
+        this.b = Math.floor(Math.random() * (9 - 3 + 1)) + 3;
+
+        this.x = (this.a > 5) ? 5 : (this.a > 2 ? 2 : 1);
+        this.y = this.a - this.x;
+
+        let wa = this.a + (Math.random()>0.5 ? 1 : -1);
+        this.wx = this.x;
+        this.wy = wa - this.wx;
+
+        this.updateStrings();
+    }
+
+    updateStrings() {
+        this.eq = `${formatNum(this.a)} × ${formatNum(this.b)}`;
+    }
+}
+
+class Particle {
+    constructor(x, y, color) {
+        this.x = x; this.y = y; this.color = color;
+        this.vx = (Math.random()-0.5)*12;
+        this.vy = (Math.random()-0.5)*12;
+        this.life = 1;
+    }
+    update() { this.x+=this.vx; this.y+=this.vy; this.life-=0.04; }
+    draw(ctx) {
+        ctx.globalAlpha = this.life;
+        ctx.fillStyle = this.color;
+        ctx.beginPath(); ctx.arc(this.x, this.y, Math.random()*4, 0, Math.PI*2); ctx.fill();
+        ctx.globalAlpha = 1;
+    }
+}
+
+class Block {
+    constructor(problem) {
+        this.x = canvas.width/2;
+        this.y = -50;
+        this.problem = problem;
+        this.text = problem.eq;
+        this.maxY = canvas.height * 0.75;
+        this.baseSpeed = 1.5;
+    }
+    update() {
+        // PROGRESSIVE DIFFICULTY: Increase speed based on score
+        // Cap limit to avoid impossibility
+        let speedMultiplier = 1 + (game.score / 200); 
+        if (speedMultiplier > 3.5) speedMultiplier = 3.5;
+        
+        this.y += this.baseSpeed * speedMultiplier;
+    }
+    draw(ctx) {
+        ctx.textAlign = "left"; 
+        ctx.font = "bold 60px Cairo";
+        
+        const txtA = formatNum(this.problem.a);
+        const txtSym = " × ";
+        const txtB = formatNum(this.problem.b);
+        
+        const wA = ctx.measureText(txtA).width;
+        const wSym = ctx.measureText(txtSym).width;
+        const wB = ctx.measureText(txtB).width;
+        const totalW = wA + wSym + wB;
+        
+        let startX = this.x - totalW / 2;
+        
+        ctx.shadowBlur = 20;
+        
+        // Draw A (Variable - Gold)
+        ctx.fillStyle = "#ffcc00"; 
+        ctx.shadowColor = "#ffcc00";
+        ctx.fillText(txtA, startX, this.y);
+        
+        // Draw Symbol (White)
+        ctx.fillStyle = "#fff";
+        ctx.shadowColor = "#fff";
+        ctx.fillText(txtSym, startX + wA, this.y);
+        
+        // Draw B (Constant - Green)
+        ctx.fillStyle = "#00ffaa";
+        ctx.shadowColor = "#00ffaa";
+        ctx.fillText(txtB, startX + wA + wSym, this.y);
+        
+        ctx.shadowBlur = 0;
+    }
+}
+
+/* --- GAME ENGINE --- */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+const game = {
+    state: 'menu',
+    score: 0,
+    lives: 3,
+    block: null,
+    currentProblem: null,
+    particles: [],
+    beams: [],
+    options: {left: null, right: null},
+
+    resize: function() {
+        canvas.width = canvas.parentElement.offsetWidth;
+        canvas.height = canvas.parentElement.offsetHeight;
+    },
+
+    startGame: function() {
+        this.score = 0;
+        this.lives = 3;
+        this.state = 'playing';
+        this.block = null;
+        this.particles = [];
+        this.beams = [];
+        
+        audio.init();
+        document.getElementById('start-screen').classList.add('hidden');
+        document.getElementById('game-over-screen').classList.add('hidden');
+        document.getElementById('hud').classList.remove('hidden');
+        document.getElementById('controls-layer').classList.remove('hidden');
+        
+        this.updateHUD();
+        this.spawnBlock();
+        this.loop();
+    },
+
+    goHome: function() {
+        this.state = 'menu';
+        document.getElementById('start-screen').classList.remove('hidden');
+        document.getElementById('game-over-screen').classList.add('hidden');
+        document.getElementById('hud').classList.add('hidden');
+        document.getElementById('controls-layer').classList.add('hidden');
+    },
+
+    spawnBlock: function() {
+        const p = new MathProblem();
+        this.currentProblem = p; 
+
+        this.block = new Block(p);
+
+        const correctLeft = Math.random() > 0.5;
+        this.options.left = correctLeft;
+        this.options.right = !correctLeft;
+
+        updateGameButtons();
+    },
+
+    fire: function(side) {
+        if (this.state !== 'playing' || !this.block) return;
+        
+        const btn = document.getElementById('btn-'+side);
+        btn.classList.remove('animate');
+        void btn.offsetWidth; 
+        btn.classList.add('animate');
+
+        const isCorrect = this.options[side];
+        
+        const rect = btn.getBoundingClientRect();
+        const startX = rect.left + rect.width / 2;
+        const startY = rect.top;
+
+        this.beams.push({
+            x: startX, y: startY, 
+            tx: canvas.width/2, ty: this.block.y,
+            color: isCorrect ? '#00ffaa' : '#ff0055',
+            life: 10
+        });
+
+        if (isCorrect) {
+            audio.laser();
+            setTimeout(() => audio.explosion(), 100);
+            this.destroyBlock(true);
+        } else {
+            audio.error();
+            // Shake
+            canvas.style.transform = `translate(${Math.random()*10-5}px, ${Math.random()*10-5}px)`;
+            setTimeout(()=>canvas.style.transform='none', 200);
+            
+            this.lives--;
+            this.updateHUD();
+            if(this.lives <= 0) this.gameOver();
+        }
+    },
+
+    destroyBlock: function(success) {
+        const color = success ? '#00ffaa' : '#ff0055';
+        for(let i=0; i<30; i++) {
+            this.particles.push(new Particle(canvas.width/2, this.block.y + 40, color));
+        }
+
+        const wasBlock = this.block;
+        this.block = null; 
+
+        if (success) this.score += 10;
+        this.updateHUD();
+        
+        if (this.lives > 0) {
+            setTimeout(() => this.spawnBlock(), 500);
+        }
+    },
+
+    updateHUD: function() {
+        document.getElementById('score-val').innerText = formatNum(this.score);
+        let hearts = "❤".repeat(this.lives);
+        document.getElementById('lives-val').innerText = hearts;
+    },
+
+    gameOver: function() {
+        this.state = 'gameover';
+        document.getElementById('controls-layer').classList.add('hidden');
+        document.getElementById('game-over-screen').classList.remove('hidden');
+        document.getElementById('final-score').innerText = strings[currentLang].score + ": " + formatNum(this.score);
+    },
+
+    restart: function() {
+        this.startGame();
+    },
+
+    loop: function() {
+        if (this.state !== 'playing') return;
+        requestAnimationFrame(() => this.loop());
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Update Block
+        if (this.block) {
+            this.block.update();
+            this.block.draw(ctx);
+            if (this.block.y > this.block.maxY) {
+                audio.error();
+                this.lives--;
+                this.destroyBlock(false); 
+                if (this.lives <= 0 && this.state !== 'gameover') this.gameOver();
+            }
+        }
+
+        // Draw Beams
+        this.beams.forEach((b, i) => {
+            ctx.beginPath();
+            ctx.strokeStyle = b.color;
+            ctx.lineWidth = b.life; 
+            ctx.moveTo(b.x, b.y);
+            ctx.lineTo(b.tx, b.ty);
+            ctx.stroke();
+            b.life -= 2;
+            if(b.life <= 0) this.beams.splice(i, 1);
+        });
+
+        // Update/Draw Particles
+        this.particles.forEach((p, i) => {
+            p.update(ctx);
+            p.draw(ctx);
+            if (p.life <= 0) this.particles.splice(i, 1);
+        });
+    }
+};
+
+window.addEventListener('resize', () => game.resize());
+game.resize();
+updateUI(); 
+
+function shareGame() {
+    if (navigator.share) navigator.share({title:document.title, text:strings[currentLang].shareMsg, url:window.location.href});
+    else alert("انسخ الرابط: " + window.location.href);
+}
+</script>
+</body>
+</html>
