@@ -1,0 +1,1657 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#060812" />
+
+  <title>Number Cannon | مدفع الأرقام</title>
+  <meta name="description" content="Fast-paced arcade game to learn the distributive property (decomposition strategy) for multiplication. | لعبة سريعة لتعلّم خاصية التوزيع في الضرب عبر التفكيك." />
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Number Cannon | مدفع الأرقام" />
+  <meta property="og:description" content="Shoot the correct decomposition to destroy falling equations. Learn distributive property through play!" />
+  <meta property="og:url" content="" id="ogUrl" />
+  <meta property="og:image" content="" id="ogImg" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Number Cannon | مدفع الأرقام" />
+  <meta name="twitter:description" content="An offline-first cyberpunk math shooter for distributive property mastery." />
+  <meta name="twitter:image" content="" id="twImg" />
+
+  <!-- Google Font (Cairo) with fallback -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;800&display=swap" rel="stylesheet">
+
+  <!-- Embedded SVG favicon (Base64) -->
+  <link rel="icon" type="image/svg+xml"
+        href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iZyIgeDE9IjAiIHgyPSIxIiB5MT0iMCIgeTI9IjEiPgogICAgICA8c3RvcCBvZmZzZXQ9IjAiIHN0b3AtY29sb3I9IiMwMGZmZTYiLz4KICAgICAgPHN0b3Agb2Zmc2V0PSIxIiBzdG9wLWNvbG9yPSIjZmZiYzAwIi8+CiAgICA8L2xpbmVhckdyYWRpZW50PgogIDwvZGVmcz4KICA8cmVjdCB3aWR0aD0iNjQiIGhlaWdodD0iNjQiIHJ4PSIxNCIgZmlsbD0iIzA2MDgxMiIvPgogIDxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjIyIiBmaWxsPSJub25lIiBzdHJva2U9InVybCgjZykiIHN0cm9rZS13aWR0aD0iMyIvPgogIDxjaXJjbGUgY3g9IjMyIiBjeT0iMzIiIHI9IjE0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwMGZmZTYiIHN0cm9rZS13aWR0aD0iMiIgb3BhY2l0eT0iMC44Ii8+CiAgPGNpcmNsZSBjeD0iMzIiIGN5PSIzMiIgcj0iNiIgZmlsbD0iI2ZmYmMwMCIgb3BhY2l0eT0iMC45Ii8+CiAgPHRleHQgeD0iMzIiIHk9IjQzIiBmb250LXNpemU9IjI4IiBmb250LWZhbWlseT0iQ2Fpcm8sIHN5c3RlbS11aSIgZm9udC13ZWlnaHQ9IjgwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iIzA2MDgxMiI+NzwvdGV4dD4KPC9zdmc+" />
+
+  <style>
+    :root{
+      --bg0:#05060f;
+      --bg1:#090b1d;
+      --panel:rgba(10,12,28,.72);
+      --stroke:rgba(0,255,230,.25);
+      --neonC:#00ffe6;   /* cyan */
+      --neonG:#00ff7a;   /* constant: neon green */
+      --neonO:#ffbc00;   /* variable: neon orange/gold */
+      --bad:#ff3b6b;
+      --good:#38ff9a;
+      --text:#eaf2ff;
+      --muted:rgba(234,242,255,.72);
+      --shadow: 0 0 14px rgba(0,255,230,.25), 0 0 28px rgba(255,188,0,.10);
+    }
+
+    *{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+    html, body { height:100%; }
+    body{
+      margin:0;
+      font-family: "Cairo", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background: radial-gradient(1200px 900px at 70% 20%, rgba(0,255,230,.12), transparent 50%),
+                  radial-gradient(900px 700px at 20% 90%, rgba(255,188,0,.12), transparent 55%),
+                  linear-gradient(180deg, var(--bg0), var(--bg1));
+      color: var(--text);
+      height: 100dvh;
+      overflow:hidden;
+      touch-action:none;
+    }
+
+    #app{
+      position:fixed; inset:0;
+      height:100dvh;
+      display:flex;
+      flex-direction:column;
+    }
+
+    canvas{
+      width:100%;
+      height:100%;
+      display:block;
+      background: transparent;
+    }
+
+    /* HUD */
+    .hud{
+      position:absolute; inset: 10px 12px auto 12px;
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      pointer-events:none;
+      z-index: 3;
+    }
+    .hud .pill{
+      pointer-events:auto;
+      display:flex; align-items:center; gap:10px;
+      padding:8px 10px;
+      border:1px solid var(--stroke);
+      border-radius:999px;
+      background: rgba(5,6,15,.55);
+      backdrop-filter: blur(10px);
+      box-shadow: var(--shadow);
+    }
+    .hud .stat{ font-weight:800; letter-spacing:.2px; }
+    .hud .muted{ color: var(--muted); font-weight:600; }
+
+    .btnIcon{
+      pointer-events:auto;
+      border:1px solid var(--stroke);
+      background: rgba(10,12,28,.55);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 10px;
+      font-weight:800;
+      box-shadow: var(--shadow);
+      cursor:pointer;
+      user-select:none;
+    }
+    .btnIcon:active{ transform: translateY(1px); }
+
+    /* Bottom answer bar */
+    .answerBar{
+      position:absolute; left:0; right:0; bottom:0;
+      padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      z-index: 4;
+    }
+    .answerBtn{
+      border-radius: 18px;
+      padding: 14px 12px;
+      border: 1px solid rgba(0,255,230,.25);
+      background: linear-gradient(180deg, rgba(10,12,28,.85), rgba(10,12,28,.55));
+      box-shadow: 0 0 0 1px rgba(255,188,0,.10) inset, var(--shadow);
+      color: var(--text);
+      cursor:pointer;
+      user-select:none;
+      touch-action:none;
+      min-height: 62px;
+      display:flex; flex-direction:column; gap:4px;
+      align-items:center; justify-content:center;
+      text-align:center;
+      font-weight:800;
+    }
+    .answerBtn small{
+      color: var(--muted);
+      font-weight:700;
+      letter-spacing:.2px;
+    }
+    .answerBtn .expr{
+      font-size: clamp(16px, 3.4vw, 22px);
+      line-height:1.15;
+      display:flex; flex-wrap:wrap; justify-content:center;
+      gap:.25em;
+    }
+
+    /* colored tokens for DOM buttons (to match canvas rule) */
+    .tokC{ color: var(--neonG); text-shadow: 0 0 10px rgba(0,255,122,.35); }
+    .tokV{ color: var(--neonO); text-shadow: 0 0 10px rgba(255,188,0,.35); }
+    .tokX{ color: rgba(234,242,255,.75); }
+
+    /* Screens */
+    .screen{
+      position:absolute; inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 22px 14px calc(22px + env(safe-area-inset-bottom));
+      z-index: 10;
+      background: radial-gradient(1100px 800px at 50% 20%, rgba(0,255,230,.16), transparent 55%),
+                  radial-gradient(800px 600px at 50% 85%, rgba(255,188,0,.14), transparent 55%),
+                  rgba(5,6,15,.75);
+      backdrop-filter: blur(10px);
+    }
+    .screen.show{ display:flex; }
+
+    .panel{
+      width: min(720px, 92vw);
+      border-radius: 22px;
+      border: 1px solid rgba(0,255,230,.28);
+      background: linear-gradient(180deg, rgba(10,12,28,.88), rgba(10,12,28,.62));
+      box-shadow: 0 0 0 1px rgba(255,188,0,.10) inset, 0 18px 60px rgba(0,0,0,.55), var(--shadow);
+      padding: 18px 16px;
+    }
+    .title{
+      font-size: clamp(28px, 6vw, 44px);
+      line-height:1.05;
+      margin: 0 0 8px;
+      font-weight: 900;
+      letter-spacing:.4px;
+      text-shadow: 0 0 18px rgba(0,255,230,.18), 0 0 26px rgba(255,188,0,.12);
+    }
+    .subtitle{
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-weight: 700;
+      line-height:1.45;
+      font-size: clamp(14px, 3.2vw, 17px);
+    }
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+    }
+    .primaryBtn{
+      border-radius: 16px;
+      padding: 12px 12px;
+      border: 1px solid rgba(0,255,230,.30);
+      background: linear-gradient(180deg, rgba(0,255,230,.20), rgba(10,12,28,.55));
+      color: var(--text);
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+      user-select:none;
+    }
+    .secondaryBtn{
+      border-radius: 16px;
+      padding: 12px 12px;
+      border: 1px solid rgba(255,188,0,.28);
+      background: linear-gradient(180deg, rgba(255,188,0,.16), rgba(10,12,28,.55));
+      color: var(--text);
+      font-weight: 900;
+      cursor:pointer;
+      box-shadow: var(--shadow);
+      user-select:none;
+    }
+    .row{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px;
+      margin-top: 12px;
+      flex-wrap:wrap;
+    }
+    .toggle{
+      display:flex; align-items:center; gap:8px;
+      padding: 8px 10px;
+      border-radius: 14px;
+      border: 1px solid rgba(0,255,230,.22);
+      background: rgba(5,6,15,.45);
+      font-weight: 800;
+      cursor:pointer;
+      user-select:none;
+    }
+    .toggle b{
+      color: var(--neonC);
+      text-shadow: 0 0 10px rgba(0,255,230,.30);
+    }
+
+    .contactBox{
+      margin-top: 12px;
+      padding: 12px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(0,255,230,.22);
+      background: rgba(5,6,15,.42);
+      display:flex; flex-direction:column; gap:6px;
+    }
+    .contactBox a{
+      color: var(--neonC);
+      text-decoration:none;
+      font-weight:900;
+      display:inline-block;
+      word-break: break-word;
+    }
+    .belt{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(234,242,255,.16);
+      background: rgba(5,6,15,.42);
+      font-weight: 900;
+    }
+    .beltDot{
+      width:12px; height:12px;
+      border-radius: 999px;
+      box-shadow: 0 0 14px rgba(255,255,255,.25);
+    }
+
+    /* Small */
+    @media (max-width:420px){
+      .grid2{ grid-template-columns: 1fr; }
+      .hud{ inset: 8px 10px auto 10px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <canvas id="c"></canvas>
+
+    <!-- HUD (in-game) -->
+    <div class="hud" id="hud" style="display:none">
+      <div class="pill">
+        <span class="muted" id="lblScore">النقاط</span>
+        <span class="stat" id="score">0</span>
+        <span class="muted">•</span>
+        <span class="muted" id="lblLives">محاولات</span>
+        <span class="stat" id="lives">3</span>
+      </div>
+
+      <div style="display:flex; gap:8px; pointer-events:auto;">
+        <button class="btnIcon" id="btnLang" aria-label="Language">AR</button>
+        <button class="btnIcon" id="btnDigits" aria-label="Digits">١٢٣</button>
+        <button class="btnIcon" id="btnPause" aria-label="Pause">⏸</button>
+      </div>
+    </div>
+
+    <!-- Bottom answer buttons -->
+    <div class="answerBar" id="answerBar" style="display:none">
+      <button class="answerBtn" id="ansA">
+        <div class="expr" id="ansAExpr"></div>
+        <small id="ansAHelp"></small>
+      </button>
+      <button class="answerBtn" id="ansB">
+        <div class="expr" id="ansBExpr"></div>
+        <small id="ansBHelp"></small>
+      </button>
+    </div>
+
+    <!-- START SCREEN -->
+    <div class="screen show" id="startScreen">
+      <div class="panel">
+        <h1 class="title" id="title">مدفع الأرقام</h1>
+        <p class="subtitle" id="desc">
+          لعبة أركيد سريعة لتعلّم <b>خاصية التوزيع</b> في الضرب: فكّك العدد ثم أطلق الليزر على التفكيك الصحيح.
+          مثال: <span class="tokV">7</span><span class="tokX">×</span><span class="tokC">6</span>
+          = (<span class="tokV">5</span><span class="tokX">×</span><span class="tokC">6</span>) + (<span class="tokV">2</span><span class="tokX">×</span><span class="tokC">6</span>)
+        </p>
+
+        <div class="grid2">
+          <button class="primaryBtn" id="btnStart">ابدأ</button>
+          <button class="secondaryBtn" id="btnShare">مشاركة</button>
+        </div>
+
+        <div class="row">
+          <div class="toggle" id="toggleLang">
+            <span id="lblLang">اللغة</span>:
+            <b id="langVal">العربية</b>
+          </div>
+          <div class="toggle" id="toggleDigits">
+            <span id="lblDigits">الأرقام</span>:
+            <b id="digitsVal">شرقية</b>
+          </div>
+          <div class="toggle" id="toggleSfx">
+            <span id="lblSfx">الصوت</span>:
+            <b id="sfxVal">تشغيل</b>
+          </div>
+        </div>
+
+        <div class="contactBox">
+          <div style="font-weight:900" id="devBoxTitle">تواصل المطوّر</div>
+          <div style="color:var(--muted); font-weight:700" id="devBoxDesc">اقتراحات/ملاحظات؟ راسلني واتساب:</div>
+          <a id="waLink" href="https://wa.me/966505501575" target="_blank" rel="noopener">wa.me/966505501575</a>
+        </div>
+
+        <div style="margin-top:10px; color:var(--muted); font-weight:700; font-size:14px" id="offlineNote">
+          Offline-first: يشتغل بدون إنترنت بعد أول فتح (على HTTPS أو Localhost).
+        </div>
+      </div>
+    </div>
+
+    <!-- PAUSE SCREEN -->
+    <div class="screen" id="pauseScreen">
+      <div class="panel">
+        <h2 class="title" style="font-size: clamp(24px,5.5vw,34px);" id="pausedTitle">متوقف مؤقتًا</h2>
+        <p class="subtitle" id="pausedDesc">اضغط متابعة للرجوع. يمكنك تبديل اللغة والأرقام وسيُعاد الرسم فورًا.</p>
+        <div class="grid2">
+          <button class="primaryBtn" id="btnResume">متابعة</button>
+          <button class="secondaryBtn" id="btnRestart">إعادة</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- GAME OVER SCREEN -->
+    <div class="screen" id="gameOverScreen">
+      <div class="panel">
+        <h2 class="title" style="font-size: clamp(26px,6vw,38px);" id="goTitle">انتهت اللعبة</h2>
+        <p class="subtitle" id="goStats"></p>
+
+        <div class="row" style="margin-top:8px">
+          <div class="belt" id="beltPill">
+            <span class="beltDot" id="beltDot"></span>
+            <span id="beltName">White Belt</span>
+          </div>
+          <div class="belt">
+            <span style="opacity:.8" id="lblTotal">المجموع الكلي</span>:
+            <span id="totalScore">0</span>
+          </div>
+        </div>
+
+        <div class="grid2" style="margin-top:12px">
+          <button class="primaryBtn" id="btnPlayAgain">العب مرة أخرى</button>
+          <button class="secondaryBtn" id="btnBackHome">الرئيسية</button>
+        </div>
+
+        <div class="contactBox">
+          <div style="font-weight:900" id="shareBoxTitle">مشاركة اللعبة</div>
+          <div style="color:var(--muted); font-weight:700" id="shareBoxDesc">انشرها لطلابك/أصدقائك:</div>
+          <div class="grid2" style="margin-top:6px">
+            <button class="secondaryBtn" id="btnShare2">مشاركة</button>
+            <a class="primaryBtn" id="waLink2" href="https://wa.me/966505501575" target="_blank" rel="noopener" style="text-align:center; text-decoration:none; display:inline-block;">
+              واتساب
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+<script>
+(() => {
+  "use strict";
+
+  /* =========================
+     OFFLINE-FIRST (Service Worker via Blob)
+     ========================= */
+  const registerSW = async () => {
+    if (!("serviceWorker" in navigator)) return;
+    try{
+      const swCode = `
+        const CACHE = 'number-cannon-v1';
+        self.addEventListener('install', (e) => {
+          self.skipWaiting();
+          e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./'])));
+        });
+        self.addEventListener('activate', (e) => {
+          e.waitUntil(self.clients.claim());
+        });
+        self.addEventListener('fetch', (e) => {
+          const req = e.request;
+          e.respondWith(
+            caches.match(req).then(cached => cached || fetch(req).then(res => {
+              const copy = res.clone();
+              caches.open(CACHE).then(c => c.put(req, copy)).catch(()=>{});
+              return res;
+            }).catch(()=> cached))
+          );
+        });
+      `;
+      const blob = new Blob([swCode], {type:"text/javascript"});
+      const url = URL.createObjectURL(blob);
+      await navigator.serviceWorker.register(url, {scope:"./"});
+    }catch(e){}
+  };
+  registerSW();
+
+  /* =========================
+     DOM
+     ========================= */
+  const canvas = document.getElementById("c");
+  const ctx = canvas.getContext("2d");
+
+  const hud = document.getElementById("hud");
+  const answerBar = document.getElementById("answerBar");
+  const ansA = document.getElementById("ansA");
+  const ansB = document.getElementById("ansB");
+  const ansAExpr = document.getElementById("ansAExpr");
+  const ansBExpr = document.getElementById("ansBExpr");
+  const ansAHelp = document.getElementById("ansAHelp");
+  const ansBHelp = document.getElementById("ansBHelp");
+
+  const startScreen = document.getElementById("startScreen");
+  const pauseScreen = document.getElementById("pauseScreen");
+  const gameOverScreen = document.getElementById("gameOverScreen");
+
+  const btnStart = document.getElementById("btnStart");
+  const btnShare = document.getElementById("btnShare");
+  const btnShare2 = document.getElementById("btnShare2");
+  const btnPause = document.getElementById("btnPause");
+  const btnResume = document.getElementById("btnResume");
+  const btnRestart = document.getElementById("btnRestart");
+  const btnPlayAgain = document.getElementById("btnPlayAgain");
+  const btnBackHome = document.getElementById("btnBackHome");
+
+  const toggleLang = document.getElementById("toggleLang");
+  const toggleDigits = document.getElementById("toggleDigits");
+  const toggleSfx = document.getElementById("toggleSfx");
+  const btnLang = document.getElementById("btnLang");
+  const btnDigits = document.getElementById("btnDigits");
+
+  const scoreEl = document.getElementById("score");
+  const livesEl = document.getElementById("lives");
+  const totalScoreEl = document.getElementById("totalScore");
+  const goStats = document.getElementById("goStats");
+
+  const waLink = document.getElementById("waLink");
+  const waLink2 = document.getElementById("waLink2");
+
+  const beltDot = document.getElementById("beltDot");
+  const beltName = document.getElementById("beltName");
+
+  // meta tags update
+  const ogUrl = document.getElementById("ogUrl");
+  const ogImg = document.getElementById("ogImg");
+  const twImg = document.getElementById("twImg");
+
+  /* =========================
+     Localization + Reactive Settings
+     ========================= */
+  const STR = {
+    ar: {
+      dir: "rtl",
+      title: "مدفع الأرقام",
+      desc: "لعبة أركيد سريعة لتعلّم خاصية التوزيع في الضرب: فكّك العدد ثم أطلق الليزر على التفكيك الصحيح.",
+      start: "ابدأ",
+      share: "مشاركة",
+      score: "النقاط",
+      lives: "محاولات",
+      pausedTitle: "متوقف مؤقتًا",
+      pausedDesc: "اضغط متابعة للرجوع. يمكنك تبديل اللغة والأرقام وسيُعاد الرسم فورًا.",
+      resume: "متابعة",
+      restart: "إعادة",
+      gameOver: "انتهت اللعبة",
+      again: "العب مرة أخرى",
+      home: "الرئيسية",
+      total: "المجموع الكلي",
+      lang: "اللغة",
+      digits: "الأرقام",
+      sfx: "الصوت",
+      sfxOn: "تشغيل",
+      sfxOff: "إيقاف",
+      langValAr: "العربية",
+      langValEn: "English",
+      digitsEast: "شرقية",
+      digitsWest: "غربية",
+      choose: "اختر التفكيك الصحيح",
+      good: "صحيح! تفكيك ممتاز",
+      bad: "خطأ… جرّب ثانية",
+      devTitle: "تواصل المطوّر",
+      devDesc: "اقتراحات/ملاحظات؟ راسلني واتساب:",
+      shareBoxTitle: "مشاركة اللعبة",
+      shareBoxDesc: "انشرها لطلابك/أصدقائك:",
+      offline: "Offline-first: يشتغل بدون إنترنت بعد أول فتح (على HTTPS أو Localhost).",
+      statsLine: (s, t) => `نتيجتك: ${s} • المجموع الكلي: ${t}`,
+    },
+    en: {
+      dir: "ltr",
+      title: "Number Cannon",
+      desc: "A fast arcade game to learn the distributive property: decompose the number, then shoot the correct decomposition.",
+      start: "Start",
+      share: "Share",
+      score: "Score",
+      lives: "Lives",
+      pausedTitle: "Paused",
+      pausedDesc: "Tap Resume to continue. Switching language/digits redraws instantly.",
+      resume: "Resume",
+      restart: "Restart",
+      gameOver: "Game Over",
+      again: "Play Again",
+      home: "Home",
+      total: "Total Score",
+      lang: "Language",
+      digits: "Digits",
+      sfx: "Sound",
+      sfxOn: "On",
+      sfxOff: "Off",
+      langValAr: "العربية",
+      langValEn: "English",
+      digitsEast: "Eastern",
+      digitsWest: "Western",
+      choose: "Pick the correct decomposition",
+      good: "Correct! Nice decomposition",
+      bad: "Wrong… try again",
+      devTitle: "Developer Contact",
+      devDesc: "Feedback? WhatsApp me:",
+      shareBoxTitle: "Share the game",
+      shareBoxDesc: "Send it to your students/friends:",
+      offline: "Offline-first: works without internet after first load (HTTPS or localhost).",
+      statsLine: (s, t) => `This run: ${s} • Total: ${t}`,
+    }
+  };
+
+  const DIGITS_EAST = {"0":"٠","1":"١","2":"٢","3":"٣","4":"٤","5":"٥","6":"٦","7":"٧","8":"٨","9":"٩"};
+  const toDigits = (n, east) => {
+    const s = String(n);
+    if (!east) return s;
+    return s.replace(/[0-9]/g, d => DIGITS_EAST[d]);
+  };
+
+  const state = {
+    lang: "ar",
+    eastDigits: true,
+    sfx: true,
+    running: false,
+    paused: false,
+    score: 0,
+    lives: 3,
+    totalScore: 0,
+    dpr: 1,
+  };
+
+  // Total score persistence
+  const LS_KEY = "number_cannon_total_score_v1";
+  const loadTotal = () => {
+    const v = Number(localStorage.getItem(LS_KEY) || "0");
+    state.totalScore = Number.isFinite(v) ? v : 0;
+  };
+  const saveTotal = () => localStorage.setItem(LS_KEY, String(state.totalScore));
+
+  loadTotal();
+
+  function applyLocaleToDOM(){
+    const L = STR[state.lang];
+    document.documentElement.lang = state.lang === "ar" ? "ar" : "en";
+    document.documentElement.dir = L.dir;
+
+    document.getElementById("title").textContent = L.title;
+    document.getElementById("desc").childNodes[0].textContent = L.desc + " ";
+    btnStart.textContent = L.start;
+    btnShare.textContent = L.share;
+    btnShare2.textContent = L.share;
+
+    document.getElementById("lblScore").textContent = L.score;
+    document.getElementById("lblLives").textContent = L.lives;
+
+    document.getElementById("pausedTitle").textContent = L.pausedTitle;
+    document.getElementById("pausedDesc").textContent = L.pausedDesc;
+    btnResume.textContent = L.resume;
+    btnRestart.textContent = L.restart;
+
+    document.getElementById("goTitle").textContent = L.gameOver;
+    btnPlayAgain.textContent = L.again;
+    btnBackHome.textContent = L.home;
+
+    document.getElementById("lblTotal").textContent = L.total;
+
+    document.getElementById("lblLang").textContent = L.lang;
+    document.getElementById("lblDigits").textContent = L.digits;
+    document.getElementById("lblSfx").textContent = L.sfx;
+
+    document.getElementById("langVal").textContent = state.lang === "ar" ? L.langValAr : L.langValEn;
+    document.getElementById("digitsVal").textContent = state.eastDigits ? L.digitsEast : L.digitsWest;
+    document.getElementById("sfxVal").textContent = state.sfx ? L.sfxOn : L.sfxOff;
+
+    document.getElementById("devBoxTitle").textContent = L.devTitle;
+    document.getElementById("devBoxDesc").textContent = L.devDesc;
+
+    document.getElementById("shareBoxTitle").textContent = L.shareBoxTitle;
+    document.getElementById("shareBoxDesc").textContent = L.shareBoxDesc;
+
+    document.getElementById("offlineNote").textContent = L.offline;
+
+    btnLang.textContent = state.lang.toUpperCase();
+    btnDigits.textContent = state.eastDigits ? "١٢٣" : "123";
+
+    // reactive redraw
+    requestImmediateRedraw();
+  }
+
+  /* =========================
+     Web Share + WhatsApp Links
+     ========================= */
+  function updateShareLinks(){
+    const url = location.href;
+    const msgAr = `مرحبًا! جرّب لعبة "مدفع الأرقام" لتعلّم خاصية التوزيع في الضرب:\n${url}`;
+    const msgEn = `Hi! Try "Number Cannon" to learn the distributive property:\n${url}`;
+    const msg = state.lang === "ar" ? msgAr : msgEn;
+    const encoded = encodeURIComponent(msg);
+
+    waLink.href = `https://wa.me/966505501575?text=${encoded}`;
+    waLink2.href = `https://wa.me/966505501575?text=${encoded}`;
+
+    // OG url
+    ogUrl.content = url;
+
+    // Use a lightweight inline SVG as OG/Twitter image (data URI)
+    const ogSvg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630">
+        <defs>
+          <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+            <stop offset="0" stop-color="#05060f"/>
+            <stop offset="1" stop-color="#090b1d"/>
+          </linearGradient>
+          <linearGradient id="g" x1="0" x2="1">
+            <stop offset="0" stop-color="#00ffe6"/>
+            <stop offset="1" stop-color="#ffbc00"/>
+          </linearGradient>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="6" result="b"/>
+            <feMerge>
+              <feMergeNode in="b"/><feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        <rect width="1200" height="630" fill="url(#bg)"/>
+        <circle cx="240" cy="320" r="150" fill="none" stroke="url(#g)" stroke-width="10" filter="url(#glow)"/>
+        <circle cx="240" cy="320" r="90" fill="none" stroke="#00ff7a" stroke-width="6" opacity="0.9" filter="url(#glow)"/>
+        <text x="240" y="360" font-family="Cairo, Arial" font-size="140" font-weight="800" text-anchor="middle" fill="#ffbc00" filter="url(#glow)">7</text>
+        <text x="520" y="240" font-family="Cairo, Arial" font-size="64" font-weight="800" fill="#eaf2ff">Number Cannon</text>
+        <text x="520" y="320" font-family="Cairo, Arial" font-size="44" font-weight="700" fill="#b9c6e6">Distributive Property Shooter</text>
+        <text x="520" y="420" font-family="Cairo, Arial" font-size="44" font-weight="700" fill="#b9c6e6">مدفع الأرقام • خاصية التوزيع</text>
+        <text x="520" y="520" font-family="Cairo, Arial" font-size="36" font-weight="700" fill="#00ffe6">Tap-to-shoot • Offline-first</text>
+      </svg>
+    `.trim();
+    const dataUrl = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(ogSvg);
+    ogImg.content = dataUrl;
+    twImg.content = dataUrl;
+  }
+
+  async function share(){
+    const url = location.href;
+    const L = STR[state.lang];
+    const text = state.lang === "ar"
+      ? `جرّب لعبة "${L.title}" لتعلّم خاصية التوزيع في الضرب!`
+      : `Try "${L.title}" to learn the distributive property!`;
+
+    try{
+      if (navigator.share){
+        await navigator.share({ title: L.title, text, url });
+        return;
+      }
+    }catch(e){ /* user canceled */ }
+
+    // fallback: copy
+    try{
+      await navigator.clipboard.writeText(url);
+      toast(state.lang === "ar" ? "تم نسخ الرابط ✅" : "Link copied ✅");
+    }catch(e){
+      toast(url);
+    }
+  }
+
+  /* =========================
+     Neon Toast
+     ========================= */
+  let toastTimer = null;
+  function toast(msg){
+    let el = document.getElementById("toast");
+    if(!el){
+      el = document.createElement("div");
+      el.id = "toast";
+      el.style.position = "fixed";
+      el.style.left = "50%";
+      el.style.bottom = "90px";
+      el.style.transform = "translateX(-50%)";
+      el.style.zIndex = "999";
+      el.style.padding = "10px 12px";
+      el.style.borderRadius = "999px";
+      el.style.border = "1px solid rgba(0,255,230,.25)";
+      el.style.background = "rgba(10,12,28,.75)";
+      el.style.backdropFilter = "blur(10px)";
+      el.style.boxShadow = "0 0 18px rgba(0,255,230,.20), 0 0 28px rgba(255,188,0,.12)";
+      el.style.fontWeight = "900";
+      el.style.color = "var(--text)";
+      el.style.maxWidth = "92vw";
+      el.style.whiteSpace = "nowrap";
+      el.style.overflow = "hidden";
+      el.style.textOverflow = "ellipsis";
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.style.opacity = "1";
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>{ el.style.opacity = "0"; }, 1200);
+  }
+
+  /* =========================
+     Audio (Web Audio Synth)
+     ========================= */
+  let audioCtx = null;
+  function ensureAudio(){
+    if(!state.sfx) return null;
+    if(!audioCtx){
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if(audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+    return audioCtx;
+  }
+
+  function playLaser(){
+    const ac = ensureAudio(); if(!ac) return;
+    const t = ac.currentTime;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = "sawtooth";
+    o.frequency.setValueAtTime(880, t);
+    o.frequency.exponentialRampToValueAtTime(220, t + 0.08);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.22, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.10);
+    o.connect(g).connect(ac.destination);
+    o.start(t);
+    o.stop(t + 0.11);
+  }
+
+  function playExplosion(){
+    const ac = ensureAudio(); if(!ac) return;
+    const t = ac.currentTime;
+    const bufferSize = ac.sampleRate * 0.18;
+    const buffer = ac.createBuffer(1, bufferSize, ac.sampleRate);
+    const data = buffer.getChannelData(0);
+    for(let i=0;i<bufferSize;i++){
+      const x = i/bufferSize;
+      data[i] = (Math.random()*2-1) * (1 - x) * (1 - x);
+    }
+    const src = ac.createBufferSource();
+    src.buffer = buffer;
+
+    const biquad = ac.createBiquadFilter();
+    biquad.type = "lowpass";
+    biquad.frequency.setValueAtTime(1800, t);
+    biquad.frequency.exponentialRampToValueAtTime(220, t + 0.18);
+
+    const g = ac.createGain();
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.35, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.18);
+
+    src.connect(biquad).connect(g).connect(ac.destination);
+    src.start(t);
+    src.stop(t + 0.19);
+  }
+
+  function playError(){
+    const ac = ensureAudio(); if(!ac) return;
+    const t = ac.currentTime;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = "square";
+    o.frequency.setValueAtTime(160, t);
+    o.frequency.setValueAtTime(120, t + 0.06);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.18, t + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
+    o.connect(g).connect(ac.destination);
+    o.start(t);
+    o.stop(t + 0.15);
+  }
+
+  function playPowerup(){
+    const ac = ensureAudio(); if(!ac) return;
+    const t = ac.currentTime;
+    const o = ac.createOscillator();
+    const g = ac.createGain();
+    o.type = "triangle";
+    o.frequency.setValueAtTime(440, t);
+    o.frequency.exponentialRampToValueAtTime(880, t + 0.10);
+    o.frequency.exponentialRampToValueAtTime(1320, t + 0.18);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(0.22, t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+    o.connect(g).connect(ac.destination);
+    o.start(t);
+    o.stop(t + 0.23);
+  }
+
+  /* =========================
+     Game Logic
+     ========================= */
+
+  // Neon palette (canvas)
+  const COL = {
+    constant: "#00ff7a", // Neon Green (CRITICAL)
+    variable: "#ffbc00", // Neon Orange/Gold (CRITICAL)
+    cyan: "#00ffe6",
+    text: "#eaf2ff",
+    muted: "rgba(234,242,255,.7)",
+    bad: "#ff3b6b",
+    good: "#38ff9a",
+  };
+
+  function fitCanvas(){
+    const dpr = Math.max(1, Math.min(3, window.devicePixelRatio || 1));
+    state.dpr = dpr;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = Math.floor(rect.width * dpr);
+    canvas.height = Math.floor(rect.height * dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
+    requestImmediateRedraw();
+  }
+
+  window.addEventListener("resize", fitCanvas, {passive:true});
+  window.addEventListener("orientationchange", fitCanvas, {passive:true});
+
+  // Entities
+  let currentBlock = null;
+  let lasers = [];
+  let debris = [];
+  let particles = [];
+  let lastTime = 0;
+  let needsRedraw = false;
+
+  // Buttons state
+  let options = null; // {correctIndex:0/1, A:{p,q,b}, B:{p,q,b}}
+
+  function randInt(a,b){ return Math.floor(a + Math.random()*(b-a+1)); }
+
+  function makeProblem(){
+    // choose constant b and variable a
+    const b = randInt(3, 12);
+    const a = randInt(6, 12);
+
+    // choose decomposition for a -> p + q, prefer 5-based or near-10
+    const candidates = [];
+    if (a > 5) candidates.push([5, a-5]);
+    if (a > 10) candidates.push([10, a-10]);
+    if (a > 8) candidates.push([8, a-8]);
+    if (a > 6) candidates.push([6, a-6]);
+    // fallback random split
+    const pRand = randInt(2, a-2);
+    candidates.push([pRand, a-pRand]);
+
+    const [p,q] = candidates[randInt(0, candidates.length-1)];
+
+    // wrong option: either wrong split (sum != a) or wrong constant
+    let wp = p, wq = q, wb = b;
+    if (Math.random() < 0.6){
+      // wrong split
+      const delta = (Math.random() < 0.5) ? -1 : 1;
+      wp = Math.max(2, Math.min(12, p + delta));
+      wq = Math.max(2, Math.min(12, q)); // keep q
+      if (wp + wq === a) wq = Math.max(2, Math.min(12, wq + 1)); // ensure wrong
+    } else {
+      // wrong constant
+      wb = Math.max(3, Math.min(12, b + ((Math.random()<0.5)?-1:1)));
+      if (wb === b) wb = b + 2 <= 12 ? b+2 : b-2;
+    }
+
+    // decide A/B placement
+    const correctIndex = Math.random() < 0.5 ? 0 : 1;
+    const A = correctIndex === 0 ? {p,q,b} : {p:wp,q:wq,b:wb};
+    const B = correctIndex === 1 ? {p,q,b} : {p:wp,q:wq,b:wb};
+
+    options = { a, b, correctIndex, A, B };
+
+    // Falling block (position centered)
+    const w = Math.min(340, Math.max(220, canvas.getBoundingClientRect().width * 0.56));
+    const h = 72;
+    currentBlock = {
+      a, b,
+      x: (canvas.getBoundingClientRect().width - w)/2,
+      y: -h - 8,
+      w, h,
+      vy: baseFallSpeed(),
+      alive: true,
+      hitFlash: 0,
+    };
+
+    updateAnswerButtons();
+    requestImmediateRedraw();
+  }
+
+  function baseFallSpeed(){
+    // Endless scaling: slightly increase with score
+    const base = 115; // px/s
+    const inc = Math.min(140, state.score * 2.0);
+    return base + inc;
+  }
+
+  function updateAnswerButtons(){
+    const L = STR[state.lang];
+
+    const mk = (obj) => {
+      // DOM tokens (color-coding)
+      const p = toDigits(obj.p, state.eastDigits);
+      const q = toDigits(obj.q, state.eastDigits);
+      const b = toDigits(obj.b, state.eastDigits);
+
+      // expression: (p×b) + (q×b)
+      return `
+        <span class="tokX">(</span><span class="tokV">${p}</span><span class="tokX">×</span><span class="tokC">${b}</span><span class="tokX">)</span>
+        <span class="tokX">+</span>
+        <span class="tokX">(</span><span class="tokV">${q}</span><span class="tokX">×</span><span class="tokC">${b}</span><span class="tokX">)</span>
+      `;
+    };
+
+    ansAExpr.innerHTML = mk(options.A);
+    ansBExpr.innerHTML = mk(options.B);
+
+    // helpful hint line (localized)
+    const aText = toDigits(options.a, state.eastDigits);
+    const bText = toDigits(options.b, state.eastDigits);
+    const eq = state.lang === "ar"
+      ? `${aText}×${bText}`
+      : `${aText}×${bText}`;
+    ansAHelp.textContent = L.choose;
+    ansBHelp.textContent = L.choose;
+
+    // direction align
+    const dir = STR[state.lang].dir;
+    ansA.style.direction = dir;
+    ansB.style.direction = dir;
+  }
+
+  function startGame(){
+    state.running = true;
+    state.paused = false;
+    state.score = 0;
+    state.lives = 3;
+    lasers = [];
+    debris = [];
+    particles = [];
+    scoreEl.textContent = toDigits(state.score, state.eastDigits);
+    livesEl.textContent = toDigits(state.lives, state.eastDigits);
+
+    hud.style.display = "";
+    answerBar.style.display = "";
+    startScreen.classList.remove("show");
+    pauseScreen.classList.remove("show");
+    gameOverScreen.classList.remove("show");
+
+    makeProblem();
+    lastTime = performance.now();
+    requestAnimationFrame(loop);
+    playPowerup();
+  }
+
+  function pauseGame(){
+    if(!state.running) return;
+    state.paused = true;
+    pauseScreen.classList.add("show");
+  }
+  function resumeGame(){
+    if(!state.running) return;
+    state.paused = false;
+    pauseScreen.classList.remove("show");
+    lastTime = performance.now();
+    requestAnimationFrame(loop);
+  }
+
+  function endGame(){
+    state.running = false;
+    state.paused = false;
+
+    hud.style.display = "none";
+    answerBar.style.display = "none";
+    pauseScreen.classList.remove("show");
+    gameOverScreen.classList.add("show");
+
+    // update total score + belt
+    state.totalScore += state.score;
+    saveTotal();
+    totalScoreEl.textContent = toDigits(state.totalScore, state.eastDigits);
+
+    const L = STR[state.lang];
+    goStats.textContent = L.statsLine(toDigits(state.score, state.eastDigits), toDigits(state.totalScore, state.eastDigits));
+
+    const belt = getBelt(state.totalScore);
+    beltName.textContent = belt.label[state.lang];
+    beltDot.style.background = belt.color;
+    beltDot.style.boxShadow = `0 0 18px ${belt.color}55`;
+
+    updateShareLinks();
+    requestImmediateRedraw();
+  }
+
+  // Belts unlocked by TOTAL score
+  const BELTS = [
+    {min:0,     color:"#ffffff", label:{ar:"الحزام الأبيض",   en:"White Belt"}},
+    {min:50,    color:"#ffe100", label:{ar:"الحزام الأصفر",   en:"Yellow Belt"}},
+    {min:150,   color:"#ff8a00", label:{ar:"الحزام البرتقالي", en:"Orange Belt"}},
+    {min:300,   color:"#00ff7a", label:{ar:"الحزام الأخضر",   en:"Green Belt"}},
+    {min:600,   color:"#00a6ff", label:{ar:"الحزام الأزرق",   en:"Blue Belt"}},
+    {min:1000,  color:"#b46bff", label:{ar:"الحزام البنفسجي", en:"Purple Belt"}},
+    {min:1600,  color:"#ff3b6b", label:{ar:"الحزام الأحمر",   en:"Red Belt"}},
+    {min:2500,  color:"#111111", label:{ar:"الحزام الأسود",   en:"Black Belt"}},
+  ];
+  function getBelt(total){
+    let b = BELTS[0];
+    for(const x of BELTS) if(total >= x.min) b = x;
+    return b;
+  }
+
+  /* =========================
+     Laser + Collision (Line Segment Intersection ready)
+     ========================= */
+
+  function rectContainsPoint(r, px, py){
+    return px >= r.x && px <= r.x+r.w && py >= r.y && py <= r.y+r.h;
+  }
+
+  // line segment intersection (general utility)
+  function segIntersect(ax,ay,bx,by,cx,cy,dx,dy){
+    const rpx = bx-ax, rpy = by-ay;
+    const spx = dx-cx, spy = dy-cy;
+    const denom = rpx*spy - rpy*spx;
+    if (denom === 0) return null;
+    const u = ((cx-ax)*rpy - (cy-ay)*rpx) / denom;
+    const t = ((cx-ax)*spy - (cy-ay)*spx) / denom;
+    if (t >= 0 && t <= 1 && u >= 0 && u <= 1){
+      return { x: ax + t*rpx, y: ay + t*rpy, t, u };
+    }
+    return null;
+  }
+
+  function lineIntersectsRect(x1,y1,x2,y2, r){
+    // quick: if either endpoint is inside
+    if (rectContainsPoint(r,x1,y1) || rectContainsPoint(r,x2,y2)) return {x:(x1+x2)/2,y:(y1+y2)/2};
+
+    const edges = [
+      [r.x, r.y, r.x+r.w, r.y],
+      [r.x+r.w, r.y, r.x+r.w, r.y+r.h],
+      [r.x+r.w, r.y+r.h, r.x, r.y+r.h],
+      [r.x, r.y+r.h, r.x, r.y],
+    ];
+    for(const e of edges){
+      const hit = segIntersect(x1,y1,x2,y2, e[0],e[1],e[2],e[3]);
+      if(hit) return hit;
+    }
+    return null;
+  }
+
+  function buttonCenterToCanvas(btn){
+    const cRect = canvas.getBoundingClientRect();
+    const bRect = btn.getBoundingClientRect();
+    const cx = (bRect.left + bRect.width/2) - cRect.left;
+    const cy = (bRect.top + bRect.height/2) - cRect.top;
+    return {x:cx, y:cy};
+  }
+
+  function fire(choiceIndex){
+    if(!state.running || state.paused || !currentBlock || !currentBlock.alive) return;
+
+    const btn = (choiceIndex === 0) ? ansA : ansB;
+    const origin = buttonCenterToCanvas(btn);
+
+    // aim at center of block
+    const tx = currentBlock.x + currentBlock.w/2;
+    const ty = currentBlock.y + currentBlock.h/2;
+
+    const laser = {
+      x1: origin.x, y1: origin.y,
+      x2: tx, y2: ty,
+      life: 0.12,
+      t: 0
+    };
+    lasers.push(laser);
+    playLaser();
+
+    // collision check
+    const hit = lineIntersectsRect(laser.x1, laser.y1, laser.x2, laser.y2, currentBlock);
+    if(hit){
+      if(choiceIndex === options.correctIndex){
+        onCorrectHit(hit.x, hit.y);
+      }else{
+        onWrongHit();
+      }
+    }else{
+      // miss: small error tick
+      if(choiceIndex !== options.correctIndex) onWrongHit(true);
+    }
+  }
+
+  function onCorrectHit(hx, hy){
+    currentBlock.alive = false;
+    currentBlock.hitFlash = 1;
+
+    // split into two debris blocks (representing decomposed parts)
+    const correct = (options.correctIndex === 0) ? options.A : options.B;
+    const left = {
+      x: currentBlock.x + 6,
+      y: currentBlock.y + 6,
+      w: currentBlock.w/2 - 9,
+      h: currentBlock.h - 12,
+      vx: -70 - Math.random()*40,
+      vy: 40 + Math.random()*30,
+      rot: (-0.12 - Math.random()*0.12),
+      a: correct.p, b: correct.b,
+      alpha: 1,
+      life: 0.65
+    };
+    const right = {
+      x: currentBlock.x + currentBlock.w/2 + 3,
+      y: currentBlock.y + 6,
+      w: currentBlock.w/2 - 9,
+      h: currentBlock.h - 12,
+      vx: 70 + Math.random()*40,
+      vy: 40 + Math.random()*30,
+      rot: (0.12 + Math.random()*0.12),
+      a: correct.q, b: correct.b,
+      alpha: 1,
+      life: 0.65
+    };
+    debris.push(left, right);
+
+    // particles
+    for(let i=0;i<18;i++){
+      particles.push({
+        x:hx, y:hy,
+        vx:(Math.random()*2-1)*220,
+        vy:(Math.random()*2-1)*220,
+        r: 1.5 + Math.random()*2.5,
+        life: 0.45 + Math.random()*0.25,
+        t: 0,
+        col: (Math.random()<0.55) ? COL.cyan : COL.variable
+      });
+    }
+
+    playExplosion();
+    playPowerup();
+
+    state.score += 1;
+    scoreEl.textContent = toDigits(state.score, state.eastDigits);
+
+    // new problem
+    setTimeout(() => {
+      if(state.running){
+        makeProblem();
+      }
+    }, 140);
+
+    toast(STR[state.lang].good);
+  }
+
+  function onWrongHit(soft=false){
+    if(!soft) state.lives -= 1;
+    livesEl.textContent = toDigits(state.lives, state.eastDigits);
+    playError();
+    toast(STR[state.lang].bad);
+
+    // small shake / warning particles
+    const bx = currentBlock ? (currentBlock.x + currentBlock.w/2) : canvas.getBoundingClientRect().width/2;
+    const by = currentBlock ? (currentBlock.y + currentBlock.h/2) : 140;
+    for(let i=0;i<10;i++){
+      particles.push({
+        x:bx, y:by,
+        vx:(Math.random()*2-1)*160,
+        vy:(Math.random()*2-1)*160,
+        r: 1.5 + Math.random()*2.0,
+        life: 0.30 + Math.random()*0.18,
+        t: 0,
+        col: COL.bad
+      });
+    }
+
+    if(state.lives <= 0){
+      setTimeout(endGame, 220);
+    }
+    requestImmediateRedraw();
+  }
+
+  /* =========================
+     Rendering (Canvas)
+     ========================= */
+  function requestImmediateRedraw(){
+    needsRedraw = true;
+  }
+
+  function drawBackground(w,h){
+    // subtle grid + scanlines (cyberpunk)
+    ctx.save();
+    ctx.clearRect(0,0,w,h);
+
+    // vignette
+    const g = ctx.createRadialGradient(w*0.65, h*0.2, 40, w*0.5, h*0.5, Math.max(w,h));
+    g.addColorStop(0, "rgba(0,255,230,.08)");
+    g.addColorStop(0.5, "rgba(255,188,0,.04)");
+    g.addColorStop(1, "rgba(0,0,0,.22)");
+    ctx.fillStyle = g;
+    ctx.fillRect(0,0,w,h);
+
+    // grid
+    ctx.globalAlpha = 0.22;
+    ctx.strokeStyle = "rgba(0,255,230,.18)";
+    ctx.lineWidth = 1;
+    const step = 34;
+    for(let x=0; x<w; x+=step){
+      ctx.beginPath();
+      ctx.moveTo(x,0);
+      ctx.lineTo(x,h);
+      ctx.stroke();
+    }
+    for(let y=0; y<h; y+=step){
+      ctx.beginPath();
+      ctx.moveTo(0,y);
+      ctx.lineTo(w,y);
+      ctx.stroke();
+    }
+
+    // scanlines
+    ctx.globalAlpha = 0.10;
+    ctx.fillStyle = "rgba(0,0,0,1)";
+    for(let y=0; y<h; y+=4){
+      ctx.fillRect(0,y, w, 1);
+    }
+    ctx.restore();
+  }
+
+  function neonRect(x,y,w,h, strokeCol, fillCol, glowCol){
+    ctx.save();
+    ctx.fillStyle = fillCol;
+    ctx.strokeStyle = strokeCol;
+    ctx.lineWidth = 2;
+
+    // glow
+    ctx.shadowColor = glowCol;
+    ctx.shadowBlur = 18;
+    roundRect(ctx, x, y, w, h, 16);
+    ctx.fill();
+    ctx.shadowBlur = 0;
+
+    ctx.globalAlpha = 0.9;
+    roundRect(ctx, x, y, w, h, 16);
+    ctx.stroke();
+
+    // inner line
+    ctx.globalAlpha = 0.25;
+    ctx.strokeStyle = "rgba(255,188,0,.35)";
+    ctx.lineWidth = 1;
+    roundRect(ctx, x+4, y+4, w-8, h-8, 12);
+    ctx.stroke();
+
+    ctx.restore();
+  }
+
+  function roundRect(ctx, x, y, w, h, r){
+    r = Math.min(r, w/2, h/2);
+    ctx.beginPath();
+    ctx.moveTo(x+r, y);
+    ctx.arcTo(x+w, y, x+w, y+h, r);
+    ctx.arcTo(x+w, y+h, x, y+h, r);
+    ctx.arcTo(x, y+h, x, y, r);
+    ctx.arcTo(x, y, x+w, y, r);
+    ctx.closePath();
+  }
+
+  function drawTokenText(tokens, x, y, font, align){
+    // tokens: [{t, col}] drawn sequentially with accurate widths
+    ctx.save();
+    ctx.font = font;
+    ctx.textBaseline = "middle";
+    ctx.textAlign = "left";
+
+    // compute total width
+    let total = 0;
+    for(const tok of tokens) total += ctx.measureText(tok.t).width;
+
+    let startX = x;
+    if(align === "center") startX = x - total/2;
+    if(align === "right") startX = x - total;
+
+    let cx = startX;
+    for(const tok of tokens){
+      ctx.fillStyle = tok.col;
+      ctx.shadowColor = tok.col;
+      ctx.shadowBlur = 14;
+      ctx.fillText(tok.t, cx, y);
+      ctx.shadowBlur = 0;
+      cx += ctx.measureText(tok.t).width;
+    }
+    ctx.restore();
+  }
+
+  function equationTokens(a,b){
+    const A = toDigits(a, state.eastDigits);
+    const B = toDigits(b, state.eastDigits);
+    const times = "×";
+    return [
+      {t: A, col: COL.variable},  // variable number (CRITICAL)
+      {t: times, col: COL.text},
+      {t: B, col: COL.constant},  // constant number (CRITICAL)
+    ];
+  }
+
+  function debrisTokens(a,b){
+    const A = toDigits(a, state.eastDigits);
+    const B = toDigits(b, state.eastDigits);
+    return [
+      {t:"(", col:COL.text},
+      {t:A, col:COL.variable},
+      {t:"×", col:COL.text},
+      {t:B, col:COL.constant},
+      {t:")", col:COL.text},
+    ];
+  }
+
+  function drawBlock(block){
+    neonRect(block.x, block.y, block.w, block.h,
+      "rgba(0,255,230,.40)",
+      "rgba(10,12,28,.72)",
+      "rgba(0,255,230,.28)"
+    );
+
+    // equation centered
+    const tokens = equationTokens(block.a, block.b);
+    const font = "900 34px Cairo, system-ui";
+    drawTokenText(tokens, block.x + block.w/2, block.y + block.h/2, font, "center");
+
+    // subtle highlight if flash
+    if(block.hitFlash > 0){
+      ctx.save();
+      ctx.globalAlpha = 0.25 * block.hitFlash;
+      ctx.fillStyle = "rgba(255,188,0,.55)";
+      roundRect(ctx, block.x, block.y, block.w, block.h, 16);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function drawDebris(d){
+    ctx.save();
+    ctx.translate(d.x + d.w/2, d.y + d.h/2);
+    ctx.rotate(d.rot);
+    ctx.globalAlpha = d.alpha;
+
+    neonRect(-d.w/2, -d.h/2, d.w, d.h,
+      "rgba(255,188,0,.35)",
+      "rgba(10,12,28,.62)",
+      "rgba(255,188,0,.22)"
+    );
+
+    const font = "900 22px Cairo, system-ui";
+    drawTokenText(debrisTokens(d.a, d.b), 0, 0, font, "center");
+    ctx.restore();
+  }
+
+  function drawLasers(){
+    for(const l of lasers){
+      const alpha = Math.max(0, 1 - l.t / l.life);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = COL.cyan;
+      ctx.lineWidth = 4;
+      ctx.shadowColor = COL.cyan;
+      ctx.shadowBlur = 18;
+      ctx.beginPath();
+      ctx.moveTo(l.x1, l.y1);
+      ctx.lineTo(l.x2, l.y2);
+      ctx.stroke();
+
+      // core
+      ctx.globalAlpha = alpha * 0.65;
+      ctx.strokeStyle = COL.constant;
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.moveTo(l.x1, l.y1);
+      ctx.lineTo(l.x2, l.y2);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
+
+  function drawParticles(){
+    for(const p of particles){
+      const alpha = Math.max(0, 1 - p.t / p.life);
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.fillStyle = p.col;
+      ctx.shadowColor = p.col;
+      ctx.shadowBlur = 14;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fill();
+      ctx.restore();
+    }
+  }
+
+  function drawTopHint(){
+    // in-canvas hint text (reacts to locale/digits) – small and unobtrusive
+    const w = canvas.getBoundingClientRect().width;
+    const L = STR[state.lang];
+    const a = currentBlock ? toDigits(currentBlock.a, state.eastDigits) : "";
+    const b = currentBlock ? toDigits(currentBlock.b, state.eastDigits) : "";
+    const hint = state.lang === "ar"
+      ? `فكّك ${a} إلى جزئين، وخلّي ${b} ثابت (بالأخضر)`
+      : `Decompose ${a} into two parts; keep ${b} constant (green).`;
+
+    ctx.save();
+    ctx.font = "700 16px Cairo, system-ui";
+    ctx.textBaseline = "top";
+    ctx.textAlign = (L.dir === "rtl") ? "right" : "left";
+    ctx.fillStyle = "rgba(234,242,255,.70)";
+    ctx.shadowColor = "rgba(0,255,230,.18)";
+    ctx.shadowBlur = 10;
+    const x = (L.dir === "rtl") ? (w - 14) : 14;
+    ctx.fillText(hint, x, 60);
+    ctx.restore();
+  }
+
+  function render(){
+    const w = canvas.getBoundingClientRect().width;
+    const h = canvas.getBoundingClientRect().height;
+
+    drawBackground(w,h);
+
+    // game objects
+    if(currentBlock && currentBlock.alive) drawBlock(currentBlock);
+
+    for(const d of debris) drawDebris(d);
+    drawParticles();
+    drawLasers();
+
+    if(state.running && !state.paused){
+      drawTopHint();
+    }
+
+    needsRedraw = false;
+  }
+
+  /* =========================
+     Update Loop
+     ========================= */
+  function loop(now){
+    if(!state.running) return;
+    if(state.paused) return;
+
+    const dt = Math.min(0.033, (now - lastTime) / 1000);
+    lastTime = now;
+
+    // update block
+    if(currentBlock && currentBlock.alive){
+      currentBlock.vy = baseFallSpeed();
+      currentBlock.y += currentBlock.vy * dt;
+
+      // reached bottom => lose a life & new problem
+      const h = canvas.getBoundingClientRect().height;
+      if(currentBlock.y + currentBlock.h >= h - 96){ // above answer bar
+        currentBlock.alive = false;
+        state.lives -= 1;
+        livesEl.textContent = toDigits(state.lives, state.eastDigits);
+        playError();
+
+        // impact particles
+        const cx = currentBlock.x + currentBlock.w/2;
+        const cy = Math.min(h - 120, currentBlock.y + currentBlock.h);
+        for(let i=0;i<14;i++){
+          particles.push({
+            x:cx, y:cy,
+            vx:(Math.random()*2-1)*200,
+            vy:(-Math.random())*220,
+            r: 1.5 + Math.random()*2.2,
+            life: 0.40 + Math.random()*0.20,
+            t: 0,
+            col: COL.bad
+          });
+        }
+
+        if(state.lives <= 0){
+          endGame();
+          return;
+        }
+        makeProblem();
+      }
+    }
+
+    // update lasers
+    for(let i=lasers.length-1;i>=0;i--){
+      lasers[i].t += dt;
+      if(lasers[i].t >= lasers[i].life) lasers.splice(i,1);
+    }
+
+    // update debris
+    for(let i=debris.length-1;i>=0;i--){
+      const d = debris[i];
+      d.life -= dt;
+      d.x += d.vx * dt;
+      d.y += d.vy * dt;
+      d.vy += 360 * dt;
+      d.alpha = Math.max(0, d.life / 0.65);
+      if(d.life <= 0) debris.splice(i,1);
+    }
+
+    // update particles
+    for(let i=particles.length-1;i>=0;i--){
+      const p = particles[i];
+      p.t += dt;
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vx *= Math.pow(0.92, dt*60);
+      p.vy *= Math.pow(0.92, dt*60);
+      if(p.t >= p.life) particles.splice(i,1);
+    }
+
+    // always render during active loop (fast arcade)
+    render();
+    requestAnimationFrame(loop);
+  }
+
+  /* =========================
+     UI Events
+     ========================= */
+
+  // Answer buttons (tap-to-shoot)
+  ansA.addEventListener("pointerdown", (e) => { e.preventDefault(); ensureAudio(); fire(0); }, {passive:false});
+  ansB.addEventListener("pointerdown", (e) => { e.preventDefault(); ensureAudio(); fire(1); }, {passive:false});
+
+  btnStart.addEventListener("pointerdown", (e)=>{ e.preventDefault(); ensureAudio(); startGame(); }, {passive:false});
+  btnShare.addEventListener("pointerdown", (e)=>{ e.preventDefault(); share(); }, {passive:false});
+  btnShare2.addEventListener("pointerdown", (e)=>{ e.preventDefault(); share(); }, {passive:false});
+
+  btnPause.addEventListener("pointerdown", (e)=>{ e.preventDefault(); ensureAudio(); pauseGame(); }, {passive:false});
+  btnResume.addEventListener("pointerdown", (e)=>{ e.preventDefault(); ensureAudio(); resumeGame(); }, {passive:false});
+  btnRestart.addEventListener("pointerdown", (e)=>{ e.preventDefault(); ensureAudio(); startGame(); }, {passive:false});
+
+  btnPlayAgain.addEventListener("pointerdown", (e)=>{ e.preventDefault(); ensureAudio(); startGame(); }, {passive:false});
+  btnBackHome.addEventListener("pointerdown", (e)=>{ e.preventDefault(); goHome(); }, {passive:false});
+
+  function goHome(){
+    state.running = false;
+    state.paused = false;
+    hud.style.display = "none";
+    answerBar.style.display = "none";
+    pauseScreen.classList.remove("show");
+    gameOverScreen.classList.remove("show");
+    startScreen.classList.add("show");
+    render(); // reactive repaint
+  }
+
+  function toggleLanguage(){
+    state.lang = (state.lang === "ar") ? "en" : "ar";
+    applyLocaleToDOM();
+    updateAnswerButtons();
+    updateShareLinks();
+    if(state.running) render(); // reactive redraw immediately
+  }
+
+  function toggleDigitsMode(){
+    state.eastDigits = !state.eastDigits;
+    applyLocaleToDOM();
+    // refresh HUD numbers
+    scoreEl.textContent = toDigits(state.score, state.eastDigits);
+    livesEl.textContent = toDigits(state.lives, state.eastDigits);
+    totalScoreEl.textContent = toDigits(state.totalScore, state.eastDigits);
+    if(options) updateAnswerButtons();
+    if(state.running) render(); // reactive redraw immediately
+  }
+
+  function toggleSfxMode(){
+    state.sfx = !state.sfx;
+    applyLocaleToDOM();
+    if(!state.sfx && audioCtx){
+      // keep context; just silence by state flag
+    } else if(state.sfx){
+      ensureAudio();
+    }
+  }
+
+  toggleLang.addEventListener("pointerdown", (e)=>{ e.preventDefault(); ensureAudio(); toggleLanguage(); }, {passive:false});
+  toggleDigits.addEventListener("pointerdown", (e)=>{ e.preventDefault(); ensureAudio(); toggleDigitsMode(); }, {passive:false});
+  toggleSfx.addEventListener("pointerdown", (e)=>{ e.preventDefault(); toggleSfxMode(); }, {passive:false});
+
+  btnLang.addEventListener("pointerdown", (e)=>{ e.preventDefault(); ensureAudio(); toggleLanguage(); }, {passive:false});
+  btnDigits.addEventListener("pointerdown", (e)=>{ e.preventDefault(); ensureAudio(); toggleDigitsMode(); }, {passive:false});
+
+  // Prevent double-tap zoom & scroll gestures
+  document.addEventListener("gesturestart", (e) => e.preventDefault(), {passive:false});
+  document.addEventListener("touchmove", (e) => e.preventDefault(), {passive:false});
+
+  // Start muted audio until user gesture — fine.
+
+  /* =========================
+     Initial setup
+     ========================= */
+  function init(){
+    fitCanvas();
+    applyLocaleToDOM();
+    updateShareLinks();
+
+    // initial HUD values
+    scoreEl.textContent = toDigits(state.score, state.eastDigits);
+    livesEl.textContent = toDigits(state.lives, state.eastDigits);
+    totalScoreEl.textContent = toDigits(state.totalScore, state.eastDigits);
+
+    // paint start screen background (reactive)
+    render();
+  }
+
+  init();
+
+})();
+</script>
+</body>
+</html>
