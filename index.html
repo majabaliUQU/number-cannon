@@ -2,31 +2,29 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Updated Viewport: viewport-fit=cover handles notches, user-scalable=no prevents zoom -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     
     <!-- === Game Identity === -->
     <title>مدفع الأرقام | Number Cannon</title>
     <meta name="description" content="لعبة تعليمية ذكية لتعلم الرياضيات عن طريق تفكيك الأرقام. تحدى أصدقاءك وحقق أعلى النتائج!">
     <meta name="author" content="Mohammed Jabali">
     <meta name="theme-color" content="#0a0a12">
+    
+    <!-- PWA / Mobile Capable -->
     <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <!-- === Favicon (Embedded SVG Base64) === -->
-    <!-- Icon: A neon green target scope with a number 7 inside -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230a0a12'/%3E%3Ccircle cx='256' cy='256' r='200' fill='none' stroke='%2300ffaa' stroke-width='30'/%3E%3Cline x1='256' y1='56' x2='256' y2='156' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Cline x1='256' y1='356' x2='256' y2='456' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Cline x1='56' y1='256' x2='156' y2='256' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Cline x1='356' y1='256' x2='456' y2='256' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-family='Arial, sans-serif' font-weight='bold' font-size='200' fill='%23ffcc00'%3E7%3C/text%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='100' fill='%230a0a12'/%3E%3Ccircle cx='256' cy='256' r='200' fill='none' stroke='%2300ffaa' stroke-width='30'/%3E%3Cline x1='256' y1='56' x2='256' y2='156' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Cline x1='256' y1='356' x2='256' y2='456' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Cline x1='56' y1='256' x2='156' y2='256' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Cline x1='356' y1='256' x2='456' y2='256' stroke='%2300ffaa' stroke-width='20' stroke-linecap='round'/%3E%3Ctext x='50%25' y='50%25' dy='.35em' text-anchor='middle' font-family='Arial, sans-serif' font-weight='bold' font-size='200' fill='%23ffcc00'%3E7%3C/text%3E%3C/svg%3E">
 
-    <!-- === Social Media Sharing (Open Graph) === -->
+    <!-- === Social Media Sharing === -->
     <meta property="og:type" content="website">
     <meta property="og:title" content="مدفع الأرقام | Number Cannon">
-    <meta property="og:description" content="لعبة تعليمية ممتعة! استخدم مدفع الليزر لتفكيك الأرقام الصعبة وحلها بسرعة. هل يمكنك الوصول للحزام الأسود؟">
-    <!-- Note: For WhatsApp to show an image, 'og:image' must be a full HTTPS URL hosted online. 
-         Since this is a single offline file, it will fall back to the site icon if supported or no image. 
-         If you host this, replace the content below with your image URL. -->
-    <meta property="og:image" content="https://placehold.co/600x400/0a0a12/00ffaa/png?text=Number+Cannon&font=roboto">
-    <meta property="og:image:width" content="600">
-    <meta property="og:image:height" content="400">
+    <meta property="og:description" content="لعبة تعليمية ممتعة! استخدم مدفع الليزر لتفكيك الأرقام الصعبة وحلها بسرعة.">
+    <meta property="og:image" content="https://placehold.co/600x400/0a0a12/00ffaa/png?text=Number+Cannon">
 
     <!-- Fonts: Cairo -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,10 +35,10 @@
         :root {
             --bg-color: #0a0a12;
             --text-color: #ffffff;
-            --primary: #00ffaa; /* Green Neon - Constant Numbers */
-            --secondary: #ff0055; /* Red Neon - Enemy/Wrong */
-            --accent: #00ccff; /* Blue Neon - UI Accents */
-            --variable: #ffcc00; /* Gold/Orange - Variable/Decomposed Numbers */
+            --primary: #00ffaa;
+            --secondary: #ff0055;
+            --accent: #00ccff;
+            --variable: #ffcc00;
             --glass: rgba(20, 20, 20, 0.9);
             --font-main: 'Cairo', sans-serif;
         }
@@ -49,27 +47,34 @@
             box-sizing: border-box;
             user-select: none;
             -webkit-user-select: none;
+            /* Prevent default touch actions like pull-to-refresh */
+            touch-action: none;
         }
 
-        body {
+        html, body {
             margin: 0;
             padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
             font-family: var(--font-main);
-            overflow: hidden;
-            width: 100vw;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            overflow: hidden; /* Critical to prevent scrolling */
+            width: 100%;
+            /* Use dynamic viewport height to fix mobile bar issue */
+            height: 100%;
+            height: 100dvh; 
+            position: fixed; /* Locks the body in place on iOS */
         }
 
         #game-container {
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             max-width: 600px;
+            /* Center on desktop, fill on mobile */
+            left: 50%;
+            transform: translateX(-50%);
             background: radial-gradient(circle at bottom, #1a1a2e 0%, #000000 100%);
             box-shadow: 0 0 50px rgba(0, 255, 170, 0.1);
             overflow: hidden;
@@ -80,18 +85,19 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            touch-action: none;
         }
 
-        /* Controls Layer (The Buttons) */
+        /* Controls Layer */
         #controls-layer {
             position: absolute;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 25%; /* Bottom quarter of screen */
+            height: 25%;
             display: flex;
             z-index: 5;
+            /* Ensure controls are above notches on newer iPhones */
+            padding-bottom: env(safe-area-inset-bottom);
         }
 
         .fire-btn {
@@ -101,7 +107,7 @@
             border-top: 2px solid rgba(255, 255, 255, 0.1);
             color: #fff;
             font-family: var(--font-main);
-            font-size: 1.2rem; /* Will be scaled by JS */
+            font-size: 1.2rem;
             font-weight: bold;
             display: flex;
             flex-direction: column;
@@ -113,6 +119,7 @@
             padding: 10px;
             text-align: center;
             overflow: hidden;
+            -webkit-tap-highlight-color: transparent;
         }
         
         .fire-btn:not(:last-child) {
@@ -150,7 +157,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 20; /* Above controls */
+            z-index: 20;
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -175,7 +182,7 @@
         .hidden {
             opacity: 0;
             pointer-events: none !important;
-            display: none !important; /* Force hide to not block clicks */
+            display: none !important;
         }
 
         h1 {
@@ -199,6 +206,7 @@
             transition: all 0.2s ease;
             width: 80%;
             text-transform: uppercase;
+            -webkit-tap-highlight-color: transparent;
         }
 
         button.menu-btn.filled {
@@ -229,6 +237,8 @@
             padding: 0 20px;
             z-index: 30;
             pointer-events: none;
+            /* Account for status bar on phones */
+            padding-top: max(10px, env(safe-area-inset-top));
         }
 
         .icon-btn {
@@ -245,6 +255,7 @@
             align-items: center;
             margin: 0;
             cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
         }
 
         /* HUD */
@@ -258,6 +269,7 @@
             justify-content: space-between;
             pointer-events: none;
             z-index: 10;
+            top: max(60px, calc(env(safe-area-inset-top) + 50px));
         }
 
         .hud-item {
@@ -267,19 +279,16 @@
             text-shadow: 0 0 5px #000;
         }
 
-        /* Math styling inside buttons */
         .math-text {
-            direction: ltr; /* Force math to be LTR */
+            direction: ltr; 
             display: inline-block;
             pointer-events: none;
         }
         
-        /* New Classes for Color Coding */
-        .math-var { color: var(--variable); }  /* The number being split */
-        .math-const { color: var(--primary); } /* The constant multiplier */
+        .math-var { color: var(--variable); }
+        .math-const { color: var(--primary); }
         .math-sym { color: #fff; opacity: 0.8; }
 
-        /* Description Text */
         .game-desc {
             color: #ccc;
             font-size: 1rem;
@@ -290,7 +299,6 @@
             padding: 15px 0;
         }
 
-        /* Developer Box Link Style */
         .dev-box-link {
             text-decoration: none;
             color: inherit;
@@ -320,7 +328,6 @@
         .dev-box svg { fill: #25D366; width: 20px; height: 20px; }
         .dev-text { font-size: 0.8rem; color: #fff; }
 
-        /* Animations */
         @keyframes scanline {
             0% { transform: translateY(-100%); }
             100% { transform: translateY(100%); }
@@ -401,7 +408,6 @@
     <div id="tutorial-modal" class="ui-layer hidden">
         <div class="ui-content" style="max-width: 500px;">
             <h2 id="tut-title" style="color:var(--primary)">طريقة اللعب</h2>
-            <!-- Removed fixed text-align: right to allow dir attribute to control alignment -->
             <div style="margin: 10px 0; text-align: start;">
                 <p id="tut-step1">1. المكعب ينزل ومعه معادلة صعبة.</p>
                 <div style="text-align:center; margin:10px;">
@@ -429,7 +435,6 @@
             <button onclick="game.goHome()" class="menu-btn" id="btn-home">القائمة الرئيسية</button>
             <button onclick="shareGame()" class="menu-btn" id="btn-share">شارك التحدي</button>
             
-            <!-- Fixed WhatsApp Link using Anchor Tag -->
             <a href="#" class="dev-box-link" target="_blank" style="margin-top:20px">
                 <div class="dev-box">
                     <div class="dev-text">تطوير: محمد جبلي</div>
@@ -533,7 +538,6 @@ function updateUI() {
     document.documentElement.dir = currentLang === 'ar' ? 'rtl' : 'ltr';
     
     document.getElementById('game-title').innerText = t.title;
-    // document.getElementById('game-subtitle').innerText = t.subtitle; // Removed to simplify
     document.getElementById('game-desc').innerHTML = t.desc;
     document.getElementById('btn-start').innerText = t.start;
     document.getElementById('btn-share-main').innerText = t.share;
@@ -546,14 +550,13 @@ function updateUI() {
     
     document.getElementById('tut-title').innerText = t.tutTitle;
     document.getElementById('tut-step1').innerText = t.tut1;
-    document.getElementById('tut-step2').innerText = t.tut2; // Now correctly updated
+    document.getElementById('tut-step2').innerText = t.tut2; 
     document.getElementById('tut-step3').innerText = t.tut3;
     document.getElementById('tut-close').innerText = t.close;
 
     document.getElementById('lang-btn').innerText = currentLang === 'ar' ? 'En' : 'عربي';
     document.getElementById('num-btn').innerText = useEasternNumerals ? '123' : '١٢٣';
 
-    // Update WhatsApp Links dynamically based on current page URL
     const phone = "966505501575";
     const br = "%0A";
     const msg = encodeURIComponent("السلام عليكم ورحمة الله وبركاته") + br + 
@@ -564,7 +567,6 @@ function updateUI() {
         a.href = `https://wa.me/${phone}?text=${msg}`;
     });
 
-    // --- NEW: Update In-Game Elements Dynamically ---
     if (game.state === 'playing' && game.currentProblem) {
         game.currentProblem.updateStrings();
         if (game.block) {
@@ -601,7 +603,6 @@ function toggleTutorial() {
 /* --- LOGIC CLASSES --- */
 class MathProblem {
     constructor() {
-        // General difficulty range, handled by speed mostly now
         let min = 6, max = 9;
         
         this.a = Math.floor(Math.random() * (max - min + 1)) + min;
@@ -648,11 +649,8 @@ class Block {
         this.baseSpeed = 1.5;
     }
     update() {
-        // PROGRESSIVE DIFFICULTY: Increase speed based on score
-        // Cap limit to avoid impossibility
         let speedMultiplier = 1 + (game.score / 200); 
         if (speedMultiplier > 3.5) speedMultiplier = 3.5;
-        
         this.y += this.baseSpeed * speedMultiplier;
     }
     draw(ctx) {
@@ -871,3 +869,5 @@ function shareGame() {
 </script>
 </body>
 </html>
+
+
