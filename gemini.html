@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#0a0a12">
+    <meta name="description" content="Number Cannon: Master the Distributive Property of Multiplication in this arcade educational game.">
+    
+    <meta property="og:title" content="Number Cannon | مدفع الأرقام">
+    <meta property="og:description" content="Learn Math the Cyberpunk way. Master the Distributive Property now!">
+    <meta property="og:image" content="https://via.placeholder.com/1200x630/00ff9d/000000?text=Number+Cannon">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <title>Number Cannon | مدفع الأرقام</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+
+    <link id="favicon" rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48Y2lyY2xlIGN4PSI1MCIgY3k9IjUwIiByPSI0NSIgZmlsbD0iIzBhMGExMiIgc3Ryb2tlPSIjMDBmZjlkIiBzdHJva2Utd2lkdGg9IjUiLz48dGV4dCB4PSI1MCIgeT0iNjUiIGZvbnQtZmFtaWx5PSJzYW5zLXNlcmlmIiBmb250LXNpemU9IjUwIiBmaWxsPSIjZmZhYTAwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXdlaWdodD0iYm9sZCI+NzwvdGV4dD48L3N2Zz4=">
+
+    <style>
+        :root {
+            --bg-color: #0a0a12;
+            --neon-green: #00ff9d;
+            --neon-orange: #ffaa00;
+            --neon-red: #ff003c;
+            --neon-blue: #00f3ff;
+            --text-color: #ffffff;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Cairo', sans-serif;
+            overflow: hidden;
+            width: 100vw;
+            height: 100dvh; /* Mobile viewport fix */
+            touch-action: none; /* Prevent scrolling */
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Canvas Layer */
+        #gameCanvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        /* UI Layer */
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none; /* Let clicks pass through to canvas where needed */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* Top HUD */
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 20px;
+            font-weight: 900;
+            font-size: 1.2rem;
+            text-shadow: 0 0 10px var(--neon-blue);
+            pointer-events: auto;
+        }
+
+        .settings-btn {
+            background: none;
+            border: 1px solid var(--neon-blue);
+            color: var(--neon-blue);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        /* Bottom Controls */
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            padding: 20px;
+            padding-bottom: 30px; /* Safe area */
+            pointer-events: auto;
+        }
+
+        .fire-btn {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid var(--neon-green);
+            color: white;
+            padding: 20px 5px;
+            border-radius: 12px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 1.1rem; /* Base size, JS adjusts */
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            box-shadow: 0 0 15px rgba(0, 255, 157, 0.2);
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: row-reverse; /* Ensure logical math ordering */
+        }
+
+        .fire-btn:active {
+            transform: scale(0.95);
+            background: rgba(0, 255, 157, 0.2);
+        }
+
+        .fire-btn.wrong-anim {
+            border-color: var(--neon-red);
+            animation: shake 0.3s ease-in-out;
+        }
+
+        /* Screens (Start / Game Over / Settings) */
+        .screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 10, 18, 0.95);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            pointer-events: auto;
+            text-align: center;
+            padding: 20px;
+            transition: opacity 0.3s;
+        }
+
+        .hidden { opacity: 0; pointer-events: none; visibility: hidden; }
+
+        h1 {
+            font-size: 2.5rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px var(--neon-blue);
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        p { font-size: 1rem; color: #ccc; max-width: 400px; margin-bottom: 30px; }
+
+        .btn-primary {
+            background: var(--neon-orange);
+            color: #000;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: 900;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 0 20px var(--neon-orange);
+            margin-bottom: 20px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--text-color);
+            color: var(--text-color);
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin: 5px;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .belt-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            background: #333;
+            color: white;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            border: 2px solid #555;
+        }
+
+        .contact-box {
+            margin-top: 30px;
+            padding: 15px;
+            border: 1px dashed var(--neon-green);
+            border-radius: 10px;
+        }
+        
+        .contact-box a {
+            color: var(--neon-green);
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        /* Utility specific for Math rendering inside buttons */
+        .math-part { display: inline-block; direction: ltr; unicode-bidi: embed; }
+        .m-const { color: var(--neon-green); }
+        .m-var { color: var(--neon-orange); }
+        
+        /* Animations */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+
+        /* RTL Specifics */
+        .rtl { direction: rtl; }
+        .ltr { direction: ltr; }
+
+    </style>
+</head>
+<body class="ltr">
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div id="ui-layer">
+        <div class="hud">
+            <div id="scoreDisplay">Score: 0</div>
+            <button class="settings-btn" onclick="toggleSettings()">⚙️</button>
+        </div>
+
+        <div class="controls" id="controlsArea" style="display:none;">
+            <button id="btnLeft" class="fire-btn" onpointerdown="handleInput(0)">Wait...</button>
+            <button id="btnRight" class="fire-btn" onpointerdown="handleInput(1)">Wait...</button>
+        </div>
+    </div>
+
+    <div id="startScreen" class="screen">
+        <h1 id="titleText">NUMBER<br>CANNON</h1>
+        <p id="descText">Master the Distributive Property. Split equations to destroy blocks!</p>
+        
+        <button class="btn-primary" onclick="startGame()" id="btnStart">START MISSION</button>
+        
+        <div class="belt-badge" id="currentBelt">Belt: White</div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+            <button class="btn-secondary" onclick="app.toggleLang()" id="btnLang">English</button>
+            <button class="btn-secondary" onclick="app.toggleNumerals()" id="btnNums">123</button>
+        </div>
+
+        <div class="contact-box">
+            <span id="devText">Developer Contact:</span><br>
+            <a id="whatsappLink" href="#" target="_blank">WhatsApp Me</a>
+        </div>
+    </div>
+
+    <div id="gameOverScreen" class="screen hidden">
+        <h1 style="color:var(--neon-red)" id="goTitle">SYSTEM FAILURE</h1>
+        <p id="finalScoreText">Score: 0</p>
+        <button class="btn-primary" onclick="startGame()" id="btnRetry">REBOOT SYSTEM</button>
+        <button class="btn-secondary" onclick="shareResult()" id="btnShare">Share Score</button>
+        <button class="btn-secondary" onclick="showHome()">Main Menu</button>
+    </div>
+
+<script>
+/**
+ * AUDIO SYSTEM (Synthesized)
+ */
+const AudioSys = {
+    ctx: null,
+    init: function() {
+        if (!this.ctx) {
+            this.ctx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+    },
+    playTone: function(type, freq, duration, vol=0.1) {
+        if (!this.ctx) return;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = type;
+        osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+        
+        // Envelope
+        gain.gain.setValueAtTime(vol, this.ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + duration);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start();
+        osc.stop(this.ctx.currentTime + duration);
+    },
+    shoot: function() {
+        this.playTone('triangle', 600, 0.1, 0.2);
+        setTimeout(() => this.playTone('triangle', 800, 0.1, 0.1), 50);
+    },
+    explode: function() {
+        this.playTone('sawtooth', 100, 0.3, 0.3);
+        this.playTone('square', 50, 0.4, 0.3);
+    },
+    error: function() {
+        this.playTone('sawtooth', 150, 0.3, 0.2);
+        setTimeout(() => this.playTone('sawtooth', 100, 0.3, 0.2), 100);
+    }
+};
+
+/**
+ * GAME ENGINE & STATE
+ */
+const CONSTANTS = {
+    GREEN: '#00ff9d',
+    ORANGE: '#ffaa00',
+    WHITE: '#ffffff'
+};
+
+const app = {
+    lang: 'en', // 'en' or 'ar'
+    numerals: 'west', // 'west' or 'east'
+    totalScore: parseInt(localStorage.getItem('nc_total_score') || '0'),
+    
+    // Localization Data
+    txt: {
+        en: {
+            title: "NUMBER\nCANNON",
+            desc: "Use the Distributive Property to break math blocks. Example: 7x6 = (5x6) + (2x6).",
+            start: "START MISSION",
+            score: "Score: ",
+            belt: "Belt: ",
+            gameOver: "SYSTEM FAILURE",
+            retry: "REBOOT SYSTEM",
+            share: "Share Result",
+            dev: "Developer Contact",
+            menu: "Main Menu"
+        },
+        ar: {
+            title: "مدفع\nالأرقام",
+            desc: "استخدم خاصية التوزيع لتحطيم المكعبات. مثال: ٧×٦ = (٥×٦) + (٢×٦)",
+            start: "ابدأ المهمة",
+            score: "النقاط: ",
+            belt: "الحزام: ",
+            gameOver: "فشل النظام",
+            retry: "إعادة التشغيل",
+            share: "شارك النتيجة",
+            dev: "تواصل مع المطور",
+            menu: "القائمة الرئيسية"
+        }
+    },
+
+    belts: [
+        { name: "White", val: 0, color: "#fff" },
+        { name: "Yellow", val: 500, color: "#ffaa00" },
+        { name: "Green", val: 1500, color: "#00ff9d" },
+        { name: "Blue", val: 3000, color: "#00f3ff" },
+        { name: "Black", val: 5000, color: "#333" },
+        { name: "Cyber Master", val: 10000, color: "#ff003c" }
+    ],
+
+    toggleLang: function() {
+        this.lang = this.lang === 'en' ? 'ar' : 'en';
+        document.body.className = this.lang === 'en' ? 'ltr' : 'rtl';
+        document.getElementById('btnLang').innerText = this.lang === 'en' ? 'English' : 'عربي';
+        this.updateUI();
+    },
+
+    toggleNumerals: function() {
+        this.numerals = this.numerals === 'west' ? 'east' : 'west';
+        document.getElementById('btnNums').innerText = this.numerals === 'west' ? '123' : '١٢٣';
+        this.updateUI(); // Updates menu text
+        if(game.active) game.renderButtons(); // Hot reload buttons if playing
+    },
+
+    getBelt: function() {
+        let b = this.belts[0];
+        for(let i=0; i<this.belts.length; i++) {
+            if(this.totalScore >= this.belts[i].val) b = this.belts[i];
+        }
+        return b;
+    },
+
+    // Convert number to string based on settings
+    fmtNum: function(n) {
+        let s = n.toString();
+        if (this.numerals === 'east') {
+            const arNums = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+            return s.replace(/[0-9]/g, w => arNums[+w]);
+        }
+        return s;
+    },
+
+    updateUI: function() {
+        const t = this.txt[this.lang];
+        document.getElementById('titleText').innerHTML = t.title.replace('\n', '<br>');
+        document.getElementById('descText').innerText = t.desc;
+        document.getElementById('btnStart').innerText = t.start;
+        document.getElementById('scoreDisplay').innerText = t.score + this.fmtNum(game.score);
+        document.getElementById('currentBelt').innerText = t.belt + this.getBelt().name;
+        document.getElementById('goTitle').innerText = t.gameOver;
+        document.getElementById('btnRetry').innerText = t.retry;
+        document.getElementById('btnShare').innerText = t.share;
+        document.getElementById('devText').innerText = t.dev;
+        
+        // Update WhatsApp Link
+        const msg = encodeURIComponent(`I am playing Number Cannon! My total score is ${this.totalScore}. Try it: ` + window.location.href);
+        document.getElementById('whatsappLink').href = `https://wa.me/966505501575?text=${msg}`;
+    }
+};
+
+/**
+ * MATH GENERATOR
+ */
+const MathGen = {
+    generate: function() {
+        // Strategy: Anchor numbers. We want to teach splitting usually by 5, 2, or 10.
+        // Form: A * B
+        const b = Math.floor(Math.random() * 8) + 2; // 2 to 9 (Constant - Green)
+        
+        // A is the number to split. Let's make it > 5 to force a split
+        let a = Math.floor(Math.random() * 8) + 6; // 6 to 13 (Variable - Orange)
+        
+        // Determine Split
+        let a1, a2;
+        if (a > 10) { a1 = 10; a2 = a - 10; }
+        else if (a > 5) { a1 = 5; a2 = a - 5; }
+        else { a1 = Math.floor(a/2); a2 = a - a1; }
+
+        const correct = {
+            a1: a1, a2: a2, b: b,
+            str: `(${a1}×${b}) + (${a2}×${b})`
+        };
+
+        // Generate Wrong Answer
+        let w_a1 = a1 + 1;
+        let w_a2 = a2;
+        if (Math.random() > 0.5) { w_a1 = a1; w_a2 = a2 + 1; }
+        
+        const wrong = {
+            a1: w_a1, a2: w_a2, b: b,
+            str: `(${w_a1}×${b}) + (${w_a2}×${b})`
+        };
+
+        const isLeftCorrect = Math.random() > 0.5;
+
+        return {
+            equation: { a: a, b: b }, // 7 * 6
+            options: [
+                isLeftCorrect ? correct : wrong,
+                isLeftCorrect ? wrong : correct
+            ],
+            correctIndex: isLeftCorrect ? 0 : 1
+        };
+    }
+};
+
+/**
+ * GAME LOGIC
+ */
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+let game = {
+    active: false,
+    score: 0,
+    speed: 1,
+    lastFrame: 0,
+    block: null,
+    lasers: [],
+    debris: [],
+    currentProb: null
+};
+
+// Resize Handling
+function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resize);
+resize();
+
+class Block {
+    constructor(a, b) {
+        this.a = a;
+        this.b = b;
+        this.x = canvas.width / 2;
+        this.y = -60;
+        this.w = 120;
+        this.h = 60;
+        this.destroyed = false;
+    }
+
+    update(dt) {
+        this.y += (100 + (game.score * 2)) * dt * 0.5; // Speed scaling
+    }
+
+    draw() {
+        ctx.fillStyle = 'rgba(20, 20, 30, 0.8)';
+        ctx.strokeStyle = CONSTANTS.WHITE;
+        ctx.lineWidth = 2;
+        
+        // Cyberpunk box
+        ctx.strokeRect(this.x - this.w/2, this.y - this.h/2, this.w, this.h);
+        
+        // Draw Math: A (Orange) x (White) B (Green)
+        ctx.font = "bold 30px Cairo";
+        const txtA = app.fmtNum(this.a);
+        const txtOp = " × ";
+        const txtB = app.fmtNum(this.b);
+
+        const wa = ctx.measureText(txtA).width;
+        const wo = ctx.measureText(txtOp).width;
+        const wb = ctx.measureText(txtB).width;
+        const totalW = wa + wo + wb;
+
+        let startX = this.x - (totalW / 2);
+        const y = this.y + 10; // vertical center approx
+
+        // Render A (Variable)
+        ctx.fillStyle = CONSTANTS.ORANGE;
+        ctx.fillText(txtA, startX, y);
+        
+        // Render Op
+        ctx.fillStyle = CONSTANTS.WHITE;
+        ctx.fillText(txtOp, startX + wa, y);
+
+        // Render B (Constant)
+        ctx.fillStyle = CONSTANTS.GREEN;
+        ctx.fillText(txtB, startX + wa + wo, y);
+    }
+}
+
+class Laser {
+    constructor(startX, startY) {
+        this.x = startX;
+        this.y = startY;
+        this.speed = 1000;
+        this.active = true;
+    }
+    update(dt) {
+        this.y -= this.speed * dt;
+        if (this.y < 0) this.active = false;
+    }
+    draw() {
+        ctx.strokeStyle = CONSTANTS.ORANGE;
+        ctx.lineWidth = 4;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = CONSTANTS.ORANGE;
+        ctx.beginPath();
+        ctx.moveTo(this.x, this.y);
+        ctx.lineTo(this.x, this.y + 30);
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+    }
+}
+
+class Debris {
+    constructor(x, y, textParts) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 300;
+        this.vy = (Math.random() - 0.5) * 300 - 100;
+        this.life = 1.0;
+        this.textParts = textParts; // {a: val, b: val}
+    }
+    update(dt) {
+        this.x += this.vx * dt;
+        this.y += this.vy * dt;
+        this.life -= dt;
+    }
+    draw() {
+        ctx.globalAlpha = Math.max(0, this.life);
+        ctx.font = "bold 20px Cairo";
+        
+        // Simplified rendering for debris (e.g. "5x6")
+        const txt = `${app.fmtNum(this.textParts.a)}×${app.fmtNum(this.textParts.b)}`;
+        ctx.fillStyle = CONSTANTS.ORANGE;
+        ctx.fillText(txt, this.x, this.y);
+        ctx.globalAlpha = 1;
+    }
+}
+
+function startGame() {
+    AudioSys.init();
+    document.getElementById('startScreen').classList.add('hidden');
+    document.getElementById('gameOverScreen').classList.add('hidden');
+    document.getElementById('controlsArea').style.display = 'grid';
+    
+    game.score = 0;
+    game.active = true;
+    game.debris = [];
+    game.lasers = [];
+    game.lastFrame = performance.now();
+    
+    app.updateUI();
+    spawnBlock();
+    requestAnimationFrame(loop);
+}
+
+function spawnBlock() {
+    game.currentProb = MathGen.generate();
+    game.block = new Block(game.currentProb.equation.a, game.currentProb.equation.b);
+    game.renderButtons();
+}
+
+// Map HTML buttons to canvas logic
+game.renderButtons = function() {
+    if(!game.currentProb) return;
+    
+    const btns = [document.getElementById('btnLeft'), document.getElementById('btnRight')];
+    
+    game.currentProb.options.forEach((opt, i) => {
+        // Construct HTML for colorful buttons
+        // Logic: (A1 x B) + (A2 x B)
+        // A is Orange, B is Green
+        const A1 = app.fmtNum(opt.a1);
+        const A2 = app.fmtNum(opt.a2);
+        const B = app.fmtNum(opt.b);
+        
+        // Using spans for coloring
+        const html = `
+            <span class="math-part">
+                (<span class="m-var">${A1}</span>×<span class="m-const">${B}</span>) + 
+                (<span class="m-var">${A2}</span>×<span class="m-const">${B}</span>)
+            </span>
+        `;
+        
+        btns[i].innerHTML = html;
+        btns[i].classList.remove('wrong-anim');
+        btns[i].style.borderColor = CONSTANTS.GREEN; // Reset color
+    });
+};
+
+function handleInput(index) {
+    if (!game.active) return;
+    
+    const isCorrect = (index === game.currentProb.correctIndex);
+    const btn = index === 0 ? document.getElementById('btnLeft') : document.getElementById('btnRight');
+    
+    // Get button position for laser origin
+    const rect = btn.getBoundingClientRect();
+    const originX = rect.left + rect.width / 2;
+    const originY = rect.top;
+
+    if (isCorrect) {
+        AudioSys.shoot();
+        game.lasers.push(new Laser(originX, originY));
+        
+        // Immediate visual feedback handled in Loop via collision, 
+        // but here we disable input briefly to prevent spam
+    } else {
+        AudioSys.error();
+        btn.classList.add('wrong-anim');
+        btn.style.borderColor = CONSTANTS.ORANGE;
+        // Shake screen?
+    }
+}
+
+function gameOver() {
+    game.active = false;
+    AudioSys.explode();
+    
+    // Update total score persistence
+    app.totalScore += game.score;
+    localStorage.setItem('nc_total_score', app.totalScore);
+
+    document.getElementById('finalScoreText').innerText = app.txt[app.lang].score + app.fmtNum(game.score);
+    document.getElementById('controlsArea').style.display = 'none';
+    document.getElementById('gameOverScreen').classList.remove('hidden');
+    app.updateUI();
+}
+
+function showHome() {
+    document.getElementById('gameOverScreen').classList.add('hidden');
+    document.getElementById('startScreen').classList.remove('hidden');
+}
+
+function shareResult() {
+    const text = `I scored ${game.score} in Number Cannon! Can you beat my math skills? #NumberCannon`;
+    if (navigator.share) {
+        navigator.share({
+            title: 'Number Cannon',
+            text: text,
+            url: window.location.href
+        });
+    } else {
+        alert("Copy this link to share: " + window.location.href);
+    }
+}
+
+function toggleSettings() {
+    if(game.active) {
+        // Pause? For this arcade style, maybe just restart or ignore
+        alert("Settings available in Menu");
+    } else {
+        // Toggle language as a shortcut
+        app.toggleLang();
+    }
+}
+
+function loop(timestamp) {
+    if (!game.active) return;
+    const dt = (timestamp - game.lastFrame) / 1000;
+    game.lastFrame = timestamp;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Update Block
+    if (game.block) {
+        game.block.update(dt);
+        game.block.draw();
+
+        // Check fail condition (hit bottom)
+        if (game.block.y > canvas.height - 100) {
+            gameOver();
+            return;
+        }
+    }
+
+    // Update Lasers
+    for (let i = game.lasers.length - 1; i >= 0; i--) {
+        const l = game.lasers[i];
+        l.update(dt);
+        l.draw();
+
+        // Collision Logic
+        if (game.block && !game.block.destroyed && 
+            l.x > game.block.x - game.block.w/2 && 
+            l.x < game.block.x + game.block.w/2 && 
+            l.y < game.block.y + game.block.h/2 &&
+            l.y > game.block.y - game.block.h/2) {
+            
+            // Hit!
+            AudioSys.explode();
+            game.block.destroyed = true;
+            l.active = false;
+            game.score += 10;
+            app.updateUI(); // Update HUD score
+
+            // Create Debris (The decomposed parts)
+            const opts = game.currentProb.options[game.currentProb.correctIndex];
+            game.debris.push(new Debris(game.block.x - 20, game.block.y, {a: opts.a1, b: opts.b}));
+            game.debris.push(new Debris(game.block.x + 20, game.block.y, {a: opts.a2, b: opts.b}));
+
+            // Respawn delay
+            setTimeout(() => {
+                if(game.active) spawnBlock();
+            }, 500);
+        }
+
+        if (!l.active) game.lasers.splice(i, 1);
+    }
+
+    // Update Debris
+    for (let i = game.debris.length - 1; i >= 0; i--) {
+        const d = game.debris[i];
+        d.update(dt);
+        d.draw();
+        if (d.life <= 0) game.debris.splice(i, 1);
+    }
+
+    if(game.active) requestAnimationFrame(loop);
+}
+
+// Initial UI Setup
+app.updateUI();
+
+</script>
+</body>
+</html>
