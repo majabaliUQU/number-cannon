@@ -1,0 +1,1459 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    
+    <!-- Open Graph & Twitter Card Meta Tags -->
+    <meta property="og:title" content="Number Cannon - Learn Distributive Property">
+    <meta property="og:description" content="A fast-paced arcade game teaching the mathematical Distributive Property of multiplication.">
+    <meta property="og:image" content="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiMwMDAiLz48Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjE1MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBmZjAwIiBzdHJva2Utd2lkdGg9IjIwIi8+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmNjYwMCIgc3Ryb2tlLXdpZHRoPSIxNSIvPjx0ZXh0IHg9IjI1NiIgeT0iMjU2IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIwIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+NzwvdGV4dD48L3N2Zz4=">
+    <meta property="og:url" content="https://numbercannon.game">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Number Cannon - Learn Math Through Gaming">
+    <meta name="twitter:description" content="Master the Distributive Property with this arcade-style educational game.">
+    
+    <title>Number Cannon | مدفع الأرقام</title>
+    
+    <!-- Google Font Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Base64 Encoded SVG Favicon -->
+    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNTEyIiBoZWlnaHQ9IjUxMiIgdmlld0JveD0iMCAwIDUxMiA1MTIiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjUxMiIgaGVpZ2h0PSI1MTIiIGZpbGw9IiMwMDAiLz48Y2lyY2xlIGN4PSIyNTYiIGN5PSIyNTYiIHI9IjE1MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjMDBmZjAwIiBzdHJva2Utd2lkdGg9IjIwIi8+PGNpcmNsZSBjeD0iMjU2IiBjeT0iMjU2IiByPSIxMDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI2ZmNjYwMCIgc3Ryb2tlLXdpZHRoPSIxNSIvPjx0ZXh0IHg9IjI1NiIgeT0iMjU2IiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIwIiBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkeT0iLjNlbSI+NzwvdGV4dD48L3N2Zz4=" type="image/svg+xml">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body {
+            font-family: 'Cairo', sans-serif, system-ui;
+            background: #0a0a14;
+            color: #fff;
+            height: 100dvh;
+            width: 100vw;
+            overflow: hidden;
+            touch-action: none;
+            position: fixed;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Canvas Styling */
+        canvas {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            background: #0a0a14;
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+        
+        /* Game UI Panels */
+        .panel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: rgba(5, 5, 20, 0.95);
+            z-index: 100;
+            padding: 20px;
+            text-align: center;
+            transition: opacity 0.3s ease;
+        }
+        
+        .panel.hidden {
+            display: none;
+        }
+        
+        /* Title Styling */
+        .title {
+            font-size: clamp(2.5rem, 8vw, 4rem);
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00ff00, #ff6600);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+        
+        .subtitle {
+            font-size: clamp(1rem, 4vw, 1.5rem);
+            margin-bottom: 30px;
+            color: #a0a0ff;
+            max-width: 600px;
+            line-height: 1.5;
+        }
+        
+        /* Buttons */
+        .btn {
+            background: linear-gradient(135deg, #0066ff, #00ccff);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px;
+            width: 250px;
+            max-width: 90%;
+            box-shadow: 0 5px 15px rgba(0, 102, 255, 0.4);
+            transition: all 0.2s ease;
+            font-family: 'Cairo', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .btn:hover, .btn:active {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 102, 255, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(1px);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #ff6600, #ff9900);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, #ff3300, #ff6600);
+        }
+        
+        /* Control Buttons Container */
+        #controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: space-between;
+            padding: 20px;
+            z-index: 10;
+            pointer-events: none;
+        }
+        
+        .control-btn {
+            width: 45%;
+            height: 80px;
+            background: rgba(0, 50, 100, 0.7);
+            border: 3px solid #0066ff;
+            border-radius: 20px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            pointer-events: auto;
+            box-shadow: 0 0 20px rgba(0, 102, 255, 0.5);
+            transition: all 0.1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            line-height: 1.2;
+        }
+        
+        .control-btn:active {
+            background: rgba(0, 80, 160, 0.9);
+            transform: scale(0.98);
+        }
+        
+        /* Score and Settings */
+        #scoreDisplay {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+            z-index: 10;
+            background: rgba(0, 20, 40, 0.7);
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 2px solid #00ff00;
+        }
+        
+        #settingsBtn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: rgba(0, 50, 100, 0.7);
+            border: 2px solid #0066ff;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Settings Panel */
+        #settingsPanel {
+            background: rgba(5, 10, 30, 0.95);
+            border: 2px solid #0066ff;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .settings-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            color: #00ccff;
+            text-align: center;
+        }
+        
+        .setting-group {
+            margin: 20px 0;
+        }
+        
+        .setting-label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a0a0ff;
+            font-size: 1.1rem;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #333;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .toggle-slider {
+            background-color: #00ccff;
+        }
+        
+        input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        /* Game Over Panel */
+        .belt {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 20px 0;
+            padding: 10px 30px;
+            border-radius: 10px;
+            text-transform: uppercase;
+        }
+        
+        .belt-white { background: #fff; color: #000; }
+        .belt-yellow { background: #ff0; color: #000; }
+        .belt-orange { background: #ff6600; color: #fff; }
+        .belt-green { background: #00ff00; color: #000; }
+        .belt-blue { background: #0066ff; color: #fff; }
+        .belt-brown { background: #8B4513; color: #fff; }
+        .belt-black { background: #000; color: #fff; border: 2px solid #fff; }
+        
+        /* Developer Contact */
+        .developer-contact {
+            margin-top: 30px;
+            padding: 15px;
+            background: rgba(0, 100, 0, 0.3);
+            border-radius: 10px;
+            border: 1px solid #00ff00;
+            width: 100%;
+            max-width: 400px;
+        }
+        
+        .developer-contact a {
+            color: #00ff00;
+            text-decoration: none;
+            font-weight: 700;
+            display: block;
+            padding: 10px;
+        }
+        
+        /* RTL Support */
+        body[dir="rtl"] .title, 
+        body[dir="rtl"] .subtitle,
+        body[dir="rtl"] .btn {
+            font-family: 'Cairo', sans-serif;
+        }
+        
+        /* Responsive Adjustments */
+        @media (max-width: 768px) {
+            .control-btn {
+                height: 70px;
+                font-size: 1.2rem;
+            }
+            
+            #scoreDisplay {
+                font-size: 1.5rem;
+                padding: 8px 15px;
+            }
+        }
+        
+        @media (max-height: 600px) {
+            .control-btn {
+                height: 60px;
+            }
+        }
+    </style>
+</head>
+<body dir="ltr">
+    <div id="gameContainer">
+        <!-- Canvas for Game Graphics -->
+        <canvas id="gameCanvas"></canvas>
+        
+        <!-- Control Buttons for Shooting -->
+        <div id="controls">
+            <button id="controlLeft" class="control-btn">(5×6)</button>
+            <button id="controlRight" class="control-btn">(2×6)</button>
+        </div>
+        
+        <!-- Score Display -->
+        <div id="scoreDisplay">Score: 0</div>
+        
+        <!-- Settings Button -->
+        <button id="settingsBtn">⚙️</button>
+        
+        <!-- Start Screen -->
+        <div id="startPanel" class="panel">
+            <h1 class="title">Number Cannon<br>مدفع الأرقام</h1>
+            <p class="subtitle">
+                Master the Distributive Property of multiplication!<br>
+               分解策略：例如 7×6 = (5×6) + (2×6)<br>
+               تعلم خاصية التوزيع في الضرب!
+            </p>
+            <button id="startBtn" class="btn">START GAME</button>
+            <button id="shareBtn" class="btn btn-secondary">SHARE GAME</button>
+            
+            <div class="developer-contact">
+                <a id="developerLink" href="https://wa.me/966505501575?text=Check%20out%20Number%20Cannon%20game%20at%3A%20" target="_blank" rel="noopener">
+                    Developer Contact - تواصل مع المطور
+                </a>
+            </div>
+        </div>
+        
+        <!-- Game Over Screen -->
+        <div id="gameOverPanel" class="panel hidden">
+            <h1 class="title">GAME OVER</h1>
+            <p id="finalScore" class="subtitle">Score: 0</p>
+            <div id="beltDisplay" class="belt belt-white">White Belt</div>
+            <p class="subtitle">Keep practicing to unlock higher belts!</p>
+            <button id="restartBtn" class="btn">PLAY AGAIN</button>
+            <button id="backToMenuBtn" class="btn btn-secondary">MAIN MENU</button>
+        </div>
+        
+        <!-- Settings Panel -->
+        <div id="settingsPanel" class="panel hidden">
+            <h2 class="settings-title">SETTINGS - الإعدادات</h2>
+            
+            <div class="setting-group">
+                <label class="setting-label">Language - اللغة</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="languageToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span id="languageLabel" style="margin-left: 10px;">English</span>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">Numerals - الأرقام</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="numeralToggle">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span id="numeralLabel" style="margin-left: 10px;">123 (Western)</span>
+            </div>
+            
+            <div class="setting-group">
+                <label class="setting-label">Sound Effects</label>
+                <label class="toggle-switch">
+                    <input type="checkbox" id="soundToggle" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <span id="soundLabel" style="margin-left: 10px;">ON</span>
+            </div>
+            
+            <button id="closeSettingsBtn" class="btn" style="margin-top: 30px;">CLOSE</button>
+        </div>
+    </div>
+
+    <script>
+        // Game State and Configuration
+        const gameState = {
+            currentScreen: 'start', // 'start', 'playing', 'gameOver', 'settings'
+            score: 0,
+            highScore: 0,
+            level: 1,
+            speed: 2,
+            isPaused: false,
+            gameActive: false,
+            language: 'en', // 'en' or 'ar'
+            numerals: 'western', // 'western' or 'eastern'
+            soundEnabled: true,
+            totalScore: parseInt(localStorage.getItem('numberCannonTotalScore')) || 0,
+            currentBelt: 'white'
+        };
+
+        // Belt System Configuration
+        const belts = [
+            { name: 'White', score: 0, color: '#fff' },
+            { name: 'Yellow', score: 100, color: '#ff0' },
+            { name: 'Orange', score: 300, color: '#ff6600' },
+            { name: 'Green', score: 600, color: '#00ff00' },
+            { name: 'Blue', score: 1000, color: '#0066ff' },
+            { name: 'Brown', score: 1500, color: '#8B4513' },
+            { name: 'Black', score: 2500, color: '#000' }
+        ];
+
+        // DOM Elements
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const startPanel = document.getElementById('startPanel');
+        const gameOverPanel = document.getElementById('gameOverPanel');
+        const settingsPanel = document.getElementById('settingsPanel');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const finalScoreElement = document.getElementById('finalScore');
+        const beltDisplay = document.getElementById('beltDisplay');
+        
+        // Buttons
+        const startBtn = document.getElementById('startBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const backToMenuBtn = document.getElementById('backToMenuBtn');
+        const shareBtn = document.getElementById('shareBtn');
+        const settingsBtn = document.getElementById('settingsBtn');
+        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        const controlLeft = document.getElementById('controlLeft');
+        const controlRight = document.getElementById('controlRight');
+        
+        // Settings Toggles
+        const languageToggle = document.getElementById('languageToggle');
+        const numeralToggle = document.getElementById('numeralToggle');
+        const soundToggle = document.getElementById('soundToggle');
+        const languageLabel = document.getElementById('languageLabel');
+        const numeralLabel = document.getElementById('numeralLabel');
+        const soundLabel = document.getElementById('soundLabel');
+        const developerLink = document.getElementById('developerLink');
+
+        // Game Objects
+        let blocks = [];
+        let lasers = [];
+        let particles = [];
+        let currentEquation = null;
+        let correctDecomposition = null;
+        let wrongDecomposition = null;
+        let gameTime = 0;
+        let lastSpawnTime = 0;
+        let spawnInterval = 2000; // ms
+        let animationId = null;
+
+        // Audio Context and Sound Functions
+        let audioContext;
+        
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.log("Web Audio API not supported");
+                gameState.soundEnabled = false;
+                soundToggle.checked = false;
+                soundLabel.textContent = 'OFF';
+            }
+        }
+        
+        function playLaserSound() {
+            if (!gameState.soundEnabled || !audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(200, audioContext.currentTime + 0.2);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.2);
+        }
+        
+        function playExplosionSound() {
+            if (!gameState.soundEnabled || !audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(100, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(50, audioContext.currentTime + 0.5);
+            
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.5);
+        }
+        
+        function playErrorSound() {
+            if (!gameState.soundEnabled || !audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(300, audioContext.currentTime);
+            oscillator.frequency.setValueAtTime(250, audioContext.currentTime + 0.1);
+            oscillator.frequency.setValueAtTime(300, audioContext.currentTime + 0.2);
+            
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+        
+        function playPowerupSound() {
+            if (!gameState.soundEnabled || !audioContext) return;
+            
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            oscillator.frequency.setValueAtTime(400, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(800, audioContext.currentTime + 0.3);
+            
+            gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
+            
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + 0.3);
+        }
+
+        // Initialize Game
+        function initGame() {
+            // Set up canvas size
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            
+            // Load saved data
+            loadGameData();
+            
+            // Initialize audio
+            initAudio();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            // Update UI based on saved settings
+            updateUIFromState();
+            
+            // Start the game loop (for animations even on start screen)
+            gameLoop();
+        }
+
+        function resizeCanvas() {
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            
+            // Redraw current screen if game is active
+            if (gameState.gameActive) {
+                drawGame();
+            } else {
+                drawStartScreen();
+            }
+        }
+
+        function loadGameData() {
+            const savedLanguage = localStorage.getItem('numberCannonLanguage');
+            const savedNumerals = localStorage.getItem('numberCannonNumerals');
+            const savedSound = localStorage.getItem('numberCannonSound');
+            
+            if (savedLanguage) {
+                gameState.language = savedLanguage;
+                document.body.dir = savedLanguage === 'ar' ? 'rtl' : 'ltr';
+            }
+            
+            if (savedNumerals) {
+                gameState.numerals = savedNumerals;
+            }
+            
+            if (savedSound !== null) {
+                gameState.soundEnabled = savedSound === 'true';
+            }
+            
+            // Update total score from localStorage
+            gameState.totalScore = parseInt(localStorage.getItem('numberCannonTotalScore')) || 0;
+            updateBelt();
+        }
+
+        function saveGameData() {
+            localStorage.setItem('numberCannonLanguage', gameState.language);
+            localStorage.setItem('numberCannonNumerals', gameState.numerals);
+            localStorage.setItem('numberCannonSound', gameState.soundEnabled.toString());
+            localStorage.setItem('numberCannonTotalScore', gameState.totalScore.toString());
+        }
+
+        function setupEventListeners() {
+            // Game control buttons
+            startBtn.addEventListener('click', startGame);
+            restartBtn.addEventListener('click', startGame);
+            backToMenuBtn.addEventListener('click', showStartScreen);
+            shareBtn.addEventListener('click', shareGame);
+            settingsBtn.addEventListener('click', showSettings);
+            closeSettingsBtn.addEventListener('click', hideSettings);
+            
+            // Control buttons for shooting
+            controlLeft.addEventListener('click', () => shootLaser('left'));
+            controlRight.addEventListener('click', () => shootLaser('right'));
+            
+            // Settings toggles
+            languageToggle.addEventListener('change', toggleLanguage);
+            numeralToggle.addEventListener('change', toggleNumerals);
+            soundToggle.addEventListener('change', toggleSound);
+            
+            // Update developer link with current URL
+            const currentUrl = encodeURIComponent(window.location.href);
+            developerLink.href = `https://wa.me/966505501575?text=Check%20out%20Number%20Cannon%20game%20at%3A%20${currentUrl}`;
+            
+            // Handle touch events for mobile
+            canvas.addEventListener('touchstart', handleTouch, { passive: false });
+        }
+
+        // Game Logic Functions
+        function generateEquation() {
+            // Generate a multiplication equation that can be decomposed
+            // First number (6-9), second number (4-9)
+            const a = Math.floor(Math.random() * 4) + 6; // 6-9
+            const b = Math.floor(Math.random() * 6) + 4; // 4-9
+            
+            // Generate two possible decompositions
+            // Correct decomposition: a = x + y, so equation is (x*b) + (y*b)
+            const x = Math.floor(Math.random() * (a-2)) + 1; // 1 to a-2
+            const y = a - x;
+            
+            // Wrong decomposition: a = w + z, where w and z are different from x and y
+            let w, z;
+            do {
+                w = Math.floor(Math.random() * (a-2)) + 1;
+                z = a - w;
+            } while (w === x || w === y);
+            
+            currentEquation = { a, b, result: a * b };
+            correctDecomposition = { x, y, b, result: x * b + y * b };
+            wrongDecomposition = { x: w, y: z, b, result: w * b + z * b };
+            
+            // Randomly assign correct answer to left or right button
+            const correctIsLeft = Math.random() > 0.5;
+            
+            // Update control buttons with decompositions
+            const leftDecomp = correctIsLeft ? correctDecomposition : wrongDecomposition;
+            const rightDecomp = correctIsLeft ? wrongDecomposition : correctDecomposition;
+            
+            controlLeft.dataset.correct = correctIsLeft.toString();
+            controlRight.dataset.correct = (!correctIsLeft).toString();
+            
+            // Format numbers based on current numeral system
+            const formatNumber = (num) => {
+                if (gameState.numerals === 'eastern') {
+                    return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+                }
+                return num.toString();
+            };
+            
+            controlLeft.textContent = `(${formatNumber(leftDecomp.x)}×${formatNumber(leftDecomp.b)})`;
+            controlRight.textContent = `(${formatNumber(rightDecomp.x)}×${formatNumber(rightDecomp.b)})`;
+            
+            return currentEquation;
+        }
+
+        function createBlock() {
+            if (!currentEquation) generateEquation();
+            
+            const block = {
+                x: Math.random() * (canvas.width - 100) + 50,
+                y: -50,
+                width: 120,
+                height: 80,
+                equation: currentEquation,
+                correctDecomposition: correctDecomposition,
+                wrongDecomposition: wrongDecomposition,
+                speed: gameState.speed,
+                health: 100,
+                rotation: 0,
+                rotationSpeed: (Math.random() - 0.5) * 0.05
+            };
+            
+            blocks.push(block);
+            
+            // Generate new equation for next block
+            generateEquation();
+            
+            return block;
+        }
+
+        function shootLaser(side) {
+            if (!gameState.gameActive || gameState.isPaused) return;
+            
+            playLaserSound();
+            
+            const laser = {
+                x: side === 'left' ? canvas.width * 0.25 : canvas.width * 0.75,
+                y: canvas.height - 100,
+                width: 5,
+                height: 20,
+                speed: 15,
+                color: side === 'left' ? '#0066ff' : '#ff6600',
+                side: side,
+                isCorrect: side === 'left' ? controlLeft.dataset.correct === 'true' : controlRight.dataset.correct === 'true'
+            };
+            
+            lasers.push(laser);
+        }
+
+        function handleTouch(e) {
+            e.preventDefault();
+            
+            if (!gameState.gameActive || gameState.currentScreen !== 'playing') return;
+            
+            const touch = e.touches[0];
+            const rect = canvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+            
+            // Check if touch is near control buttons
+            if (y > canvas.height - 150) {
+                if (x < canvas.width / 2) {
+                    shootLaser('left');
+                } else {
+                    shootLaser('right');
+                }
+            }
+        }
+
+        function updateGame(deltaTime) {
+            if (!gameState.gameActive || gameState.isPaused) return;
+            
+            gameTime += deltaTime;
+            
+            // Spawn new blocks
+            if (gameTime - lastSpawnTime > spawnInterval) {
+                createBlock();
+                lastSpawnTime = gameTime;
+                
+                // Decrease spawn interval as score increases (increase difficulty)
+                spawnInterval = Math.max(800, 2000 - gameState.score * 10);
+            }
+            
+            // Update blocks
+            for (let i = blocks.length - 1; i >= 0; i--) {
+                const block = blocks[i];
+                block.y += block.speed;
+                block.rotation += block.rotationSpeed;
+                
+                // Increase speed based on score
+                block.speed = gameState.speed + gameState.score * 0.01;
+                
+                // Check if block reached bottom
+                if (block.y > canvas.height) {
+                    gameOver();
+                    return;
+                }
+                
+                // Check collision with lasers
+                for (let j = lasers.length - 1; j >= 0; j--) {
+                    const laser = lasers[j];
+                    
+                    if (laser.x > block.x - block.width/2 && laser.x < block.x + block.width/2 &&
+                        laser.y > block.y - block.height/2 && laser.y < block.y + block.height/2) {
+                        
+                        // Collision detected
+                        if (laser.isCorrect) {
+                            // Correct answer - destroy block
+                            createExplosion(block.x, block.y, block.width, block.height);
+                            playExplosionSound();
+                            
+                            // Add score
+                            gameState.score += 10;
+                            gameState.totalScore += 10;
+                            
+                            // Update belt if needed
+                            updateBelt();
+                            
+                            // Create debris particles for the two decomposed parts
+                            createDebris(block, laser.side);
+                            
+                            // Play powerup sound for correct answer
+                            playPowerupSound();
+                        } else {
+                            // Wrong answer - lose health but continue
+                            playErrorSound();
+                            block.health -= 50;
+                            
+                            if (block.health <= 0) {
+                                // Block destroyed with wrong answer, but player loses points
+                                gameState.score = Math.max(0, gameState.score - 5);
+                                createExplosion(block.x, block.y, block.width, block.height);
+                            }
+                        }
+                        
+                        // Remove laser
+                        lasers.splice(j, 1);
+                        
+                        // Remove block if destroyed
+                        if (block.health <= 0) {
+                            blocks.splice(i, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Update lasers
+            for (let i = lasers.length - 1; i >= 0; i--) {
+                const laser = lasers[i];
+                laser.y -= laser.speed;
+                
+                // Remove laser if off screen
+                if (laser.y < -20) {
+                    lasers.splice(i, 1);
+                }
+            }
+            
+            // Update particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.alpha -= 0.02;
+                particle.size *= 0.98;
+                
+                // Remove particle if faded out
+                if (particle.alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+            
+            // Update game level based on score
+            gameState.level = Math.floor(gameState.score / 100) + 1;
+            gameState.speed = 2 + gameState.level * 0.2;
+            
+            // Update score display
+            scoreDisplay.textContent = gameState.language === 'ar' ? 
+                `النقاط: ${formatNumber(gameState.score)}` : 
+                `Score: ${formatNumber(gameState.score)}`;
+        }
+
+        function createExplosion(x, y, width, height) {
+            const particleCount = 20;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = 2 + Math.random() * 4;
+                
+                particles.push({
+                    x: x + (Math.random() - 0.5) * width,
+                    y: y + (Math.random() - 0.5) * height,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: 3 + Math.random() * 7,
+                    color: `hsl(${Math.random() * 60 + 20}, 100%, 50%)`,
+                    alpha: 1
+                });
+            }
+        }
+
+        function createDebris(block, side) {
+            // Create debris representing the two decomposed parts
+            const colors = ['#ff6600', '#ff9900']; // Orange shades for decomposed parts
+            
+            for (let part = 0; part < 2; part++) {
+                for (let i = 0; i < 8; i++) {
+                    const angle = Math.random() * Math.PI * 2;
+                    const speed = 1 + Math.random() * 3;
+                    
+                    particles.push({
+                        x: block.x,
+                        y: block.y,
+                        vx: Math.cos(angle) * speed,
+                        vy: Math.sin(angle) * speed,
+                        size: 5 + Math.random() * 10,
+                        color: colors[part],
+                        alpha: 1,
+                        isDebris: true,
+                        part: part
+                    });
+                }
+            }
+        }
+
+        function drawGame() {
+            // Clear canvas with dark background
+            ctx.fillStyle = '#0a0a14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw grid lines for cyberpunk effect
+            drawGrid();
+            
+            // Draw particles
+            particles.forEach(particle => {
+                ctx.globalAlpha = particle.alpha;
+                ctx.fillStyle = particle.color;
+                
+                if (particle.isDebris) {
+                    // Draw debris as rectangles
+                    ctx.fillRect(
+                        particle.x - particle.size/2,
+                        particle.y - particle.size/2,
+                        particle.size,
+                        particle.size
+                    );
+                } else {
+                    // Draw explosion particles as circles
+                    ctx.beginPath();
+                    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            });
+            
+            ctx.globalAlpha = 1;
+            
+            // Draw lasers
+            lasers.forEach(laser => {
+                // Laser body
+                ctx.fillStyle = laser.color;
+                ctx.fillRect(laser.x - laser.width/2, laser.y, laser.width, laser.height);
+                
+                // Laser glow effect
+                ctx.shadowColor = laser.color;
+                ctx.shadowBlur = 15;
+                ctx.fillRect(laser.x - laser.width/2, laser.y, laser.width, laser.height);
+                ctx.shadowBlur = 0;
+                
+                // Laser tip
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.moveTo(laser.x - laser.width, laser.y);
+                ctx.lineTo(laser.x + laser.width, laser.y);
+                ctx.lineTo(laser.x, laser.y - 10);
+                ctx.closePath();
+                ctx.fill();
+            });
+            
+            // Draw blocks
+            blocks.forEach(block => {
+                // Save context for rotation
+                ctx.save();
+                ctx.translate(block.x, block.y);
+                ctx.rotate(block.rotation);
+                
+                // Block background with cyberpunk styling
+                const gradient = ctx.createLinearGradient(
+                    -block.width/2, -block.height/2,
+                    block.width/2, block.height/2
+                );
+                gradient.addColorStop(0, 'rgba(0, 30, 60, 0.9)');
+                gradient.addColorStop(1, 'rgba(0, 50, 100, 0.9)');
+                
+                ctx.fillStyle = gradient;
+                ctx.fillRect(-block.width/2, -block.height/2, block.width, block.height);
+                
+                // Block border with neon effect
+                ctx.strokeStyle = '#00ccff';
+                ctx.lineWidth = 3;
+                ctx.strokeRect(-block.width/2, -block.height/2, block.width, block.height);
+                
+                // Draw health bar
+                if (block.health < 100) {
+                    const healthWidth = (block.width - 20) * (block.health / 100);
+                    ctx.fillStyle = block.health > 50 ? '#00ff00' : '#ff0000';
+                    ctx.fillRect(-block.width/2 + 10, -block.height/2 - 15, healthWidth, 5);
+                }
+                
+                // Draw equation text
+                ctx.font = 'bold 24px Cairo';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                
+                // Format numbers based on current numeral system
+                const formatNumber = (num) => {
+                    if (gameState.numerals === 'eastern') {
+                        return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+                    }
+                    return num.toString();
+                };
+                
+                // Draw equation with color coding
+                const equationText = `${formatNumber(block.equation.a)} × ${formatNumber(block.equation.b)}`;
+                const textWidth = ctx.measureText(equationText).width;
+                
+                // Draw colored parts
+                // First number (a) - Neon Orange
+                ctx.fillStyle = '#ff6600';
+                ctx.fillText(formatNumber(block.equation.a), -textWidth/4, -10);
+                
+                // Multiplication sign - White
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('×', 0, -10);
+                
+                // Second number (b) - Neon Green
+                ctx.fillStyle = '#00ff00';
+                ctx.fillText(formatNumber(block.equation.b), textWidth/4, -10);
+                
+                // Draw equals sign and result
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText('=', 0, 20);
+                
+                // Result in white
+                ctx.fillStyle = '#ffffff';
+                ctx.fillText(formatNumber(block.equation.result), 0, 50);
+                
+                // Restore context
+                ctx.restore();
+            });
+            
+            // Draw control button indicators
+            drawControlIndicators();
+        }
+
+        function drawStartScreen() {
+            // Clear canvas
+            ctx.fillStyle = '#0a0a14';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw animated background
+            drawAnimatedBackground();
+            
+            // Draw title with neon effect
+            ctx.font = 'bold 48px Cairo';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Neon glow effect for title
+            ctx.shadowColor = '#00ff00';
+            ctx.shadowBlur = 20;
+            ctx.fillStyle = '#00ff00';
+            ctx.fillText('NUMBER CANNON', canvas.width/2, canvas.height/4);
+            
+            ctx.shadowColor = '#ff6600';
+            ctx.fillStyle = '#ff6600';
+            ctx.fillText('مدفع الأرقام', canvas.width/2, canvas.height/4 + 60);
+            ctx.shadowBlur = 0;
+            
+            // Draw subtitle
+            ctx.font = '24px Cairo';
+            ctx.fillStyle = '#a0a0ff';
+            ctx.fillText('Learn Distributive Property Through Gaming', canvas.width/2, canvas.height/2 - 40);
+            ctx.fillText('تعلم خاصية التوزيع في الضرب من خلال اللعب', canvas.width/2, canvas.height/2 + 10);
+            
+            // Draw example equation
+            ctx.font = 'bold 32px Cairo';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('7 × 6 = (5 × 6) + (2 × 6)', canvas.width/2, canvas.height/2 + 80);
+            
+            // Color code the example
+            ctx.fillStyle = '#ff6600';
+            ctx.fillText('7', canvas.width/2 - 110, canvas.height/2 + 80);
+            
+            ctx.fillStyle = '#00ff00';
+            ctx.fillText('6', canvas.width/2 - 60, canvas.height/2 + 80);
+            
+            // Draw instruction
+            ctx.font = '20px Cairo';
+            ctx.fillStyle = '#ccccff';
+            ctx.fillText('Tap buttons to fire lasers at the correct decomposition', canvas.width/2, canvas.height - 100);
+        }
+
+        function drawGrid() {
+            // Draw cyberpunk grid pattern
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            // Vertical lines
+            for (let x = 0; x < canvas.width; x += 50) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            
+            // Horizontal lines
+            for (let y = 0; y < canvas.height; y += 50) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+            
+            // Draw scanline effect
+            const scanlineY = (Date.now() / 20) % canvas.height;
+            const gradient = ctx.createLinearGradient(0, scanlineY, 0, scanlineY + 50);
+            gradient.addColorStop(0, 'rgba(0, 255, 255, 0)');
+            gradient.addColorStop(0.5, 'rgba(0, 255, 255, 0.1)');
+            gradient.addColorStop(1, 'rgba(0, 255, 255, 0)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, scanlineY, canvas.width, 50);
+        }
+
+        function drawAnimatedBackground() {
+            // Draw moving stars
+            const time = Date.now() / 1000;
+            
+            for (let i = 0; i < 50; i++) {
+                const x = (Math.sin(time * 0.5 + i) * 0.5 + 0.5) * canvas.width;
+                const y = (i * 20 + time * 100) % canvas.height;
+                const size = 1 + Math.sin(time * 2 + i) * 0.5;
+                
+                ctx.fillStyle = `rgba(255, 255, 255, ${0.5 + Math.sin(time + i) * 0.3})`;
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function drawControlIndicators() {
+            // Draw glow effects under control buttons
+            const leftX = canvas.width * 0.25;
+            const rightX = canvas.width * 0.75;
+            const bottomY = canvas.height - 50;
+            
+            // Left button indicator
+            const leftGradient = ctx.createRadialGradient(
+                leftX, bottomY, 10,
+                leftX, bottomY, 60
+            );
+            leftGradient.addColorStop(0, 'rgba(0, 102, 255, 0.6)');
+            leftGradient.addColorStop(1, 'rgba(0, 102, 255, 0)');
+            
+            ctx.fillStyle = leftGradient;
+            ctx.beginPath();
+            ctx.arc(leftX, bottomY, 60, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Right button indicator
+            const rightGradient = ctx.createRadialGradient(
+                rightX, bottomY, 10,
+                rightX, bottomY, 60
+            );
+            rightGradient.addColorStop(0, 'rgba(255, 102, 0, 0.6)');
+            rightGradient.addColorStop(1, 'rgba(255, 102, 0, 0)');
+            
+            ctx.fillStyle = rightGradient;
+            ctx.beginPath();
+            ctx.arc(rightX, bottomY, 60, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw "TAP" text
+            ctx.font = 'bold 20px Cairo';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('TAP', leftX, bottomY - 80);
+            ctx.fillText('TAP', rightX, bottomY - 80);
+        }
+
+        function gameLoop() {
+            const currentTime = Date.now();
+            const deltaTime = Math.min(1000 / 60, currentTime - (gameTime * 1000 || currentTime)) / 1000;
+            
+            if (gameState.currentScreen === 'playing' && gameState.gameActive) {
+                updateGame(deltaTime);
+                drawGame();
+            } else if (gameState.currentScreen === 'start') {
+                drawStartScreen();
+            }
+            
+            animationId = requestAnimationFrame(gameLoop);
+        }
+
+        // UI Control Functions
+        function startGame() {
+            gameState.currentScreen = 'playing';
+            gameState.gameActive = true;
+            gameState.score = 0;
+            gameState.level = 1;
+            gameState.speed = 2;
+            
+            // Reset game objects
+            blocks = [];
+            lasers = [];
+            particles = [];
+            gameTime = 0;
+            lastSpawnTime = 0;
+            
+            // Generate first equation
+            generateEquation();
+            
+            // Update UI
+            startPanel.classList.add('hidden');
+            gameOverPanel.classList.add('hidden');
+            settingsPanel.classList.add('hidden');
+            
+            // Update score display
+            scoreDisplay.textContent = gameState.language === 'ar' ? 
+                `النقاط: 0` : 
+                `Score: 0`;
+        }
+
+        function showStartScreen() {
+            gameState.currentScreen = 'start';
+            gameState.gameActive = false;
+            
+            startPanel.classList.remove('hidden');
+            gameOverPanel.classList.add('hidden');
+            settingsPanel.classList.add('hidden');
+            
+            // Save game data
+            saveGameData();
+        }
+
+        function gameOver() {
+            gameState.currentScreen = 'gameOver';
+            gameState.gameActive = false;
+            
+            // Update final score display
+            const formattedScore = formatNumber(gameState.score);
+            finalScoreElement.textContent = gameState.language === 'ar' ? 
+                `النقاط النهائية: ${formattedScore}` : 
+                `Final Score: ${formattedScore}`;
+            
+            // Update belt display
+            updateBeltDisplay();
+            
+            // Show game over panel
+            gameOverPanel.classList.remove('hidden');
+            
+            // Save total score
+            saveGameData();
+        }
+
+        function showSettings() {
+            gameState.currentScreen = 'settings';
+            settingsPanel.classList.remove('hidden');
+        }
+
+        function hideSettings() {
+            if (gameState.gameActive) {
+                gameState.currentScreen = 'playing';
+            } else {
+                gameState.currentScreen = 'start';
+            }
+            settingsPanel.classList.add('hidden');
+            
+            // Save settings
+            saveGameData();
+        }
+
+        function updateBelt() {
+            // Determine current belt based on total score
+            let currentBelt = belts[0];
+            
+            for (let i = belts.length - 1; i >= 0; i--) {
+                if (gameState.totalScore >= belts[i].score) {
+                    currentBelt = belts[i];
+                    break;
+                }
+            }
+            
+            gameState.currentBelt = currentBelt.name.toLowerCase();
+        }
+
+        function updateBeltDisplay() {
+            const belt = belts.find(b => b.name.toLowerCase() === gameState.currentBelt) || belts[0];
+            
+            beltDisplay.textContent = `${belt.name} Belt`;
+            beltDisplay.className = `belt belt-${belt.name.toLowerCase()}`;
+            
+            // Add belt description
+            const nextBelt = belts[belts.findIndex(b => b.name.toLowerCase() === gameState.currentBelt) + 1];
+            if (nextBelt) {
+                const pointsNeeded = nextBelt.score - gameState.totalScore;
+                beltDisplay.title = gameState.language === 'ar' ? 
+                    `تحتاج ${formatNumber(pointsNeeded)} نقطة للترقية إلى ${nextBelt.name}` :
+                    `Need ${formatNumber(pointsNeeded)} points for ${nextBelt.name} Belt`;
+            }
+        }
+
+        function updateUIFromState() {
+            // Update toggle states
+            languageToggle.checked = gameState.language === 'ar';
+            numeralToggle.checked = gameState.numerals === 'eastern';
+            soundToggle.checked = gameState.soundEnabled;
+            
+            // Update labels
+            languageLabel.textContent = gameState.language === 'ar' ? 'العربية' : 'English';
+            numeralLabel.textContent = gameState.numerals === 'eastern' ? '١٢٣ (Eastern)' : '123 (Western)';
+            soundLabel.textContent = gameState.soundEnabled ? 'ON' : 'OFF';
+            
+            // Update developer link text
+            developerLink.textContent = gameState.language === 'ar' ? 
+                'تواصل مع المطور - Developer Contact' : 
+                'Developer Contact - تواصل مع المطور';
+            
+            // Update button texts
+            updateButtonTexts();
+        }
+
+        function updateButtonTexts() {
+            if (gameState.language === 'ar') {
+                startBtn.textContent = 'ابدأ اللعبة';
+                restartBtn.textContent = 'العب مجدداً';
+                backToMenuBtn.textContent = 'القائمة الرئيسية';
+                shareBtn.textContent = 'شارك اللعبة';
+                closeSettingsBtn.textContent = 'إغلاق';
+                
+                // Control buttons will be updated when equation is generated
+            } else {
+                startBtn.textContent = 'START GAME';
+                restartBtn.textContent = 'PLAY AGAIN';
+                backToMenuBtn.textContent = 'MAIN MENU';
+                shareBtn.textContent = 'SHARE GAME';
+                closeSettingsBtn.textContent = 'CLOSE';
+            }
+        }
+
+        function formatNumber(num) {
+            if (gameState.numerals === 'eastern') {
+                return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+            }
+            return num.toString();
+        }
+
+        // Settings Toggle Functions
+        function toggleLanguage() {
+            gameState.language = languageToggle.checked ? 'ar' : 'en';
+            document.body.dir = gameState.language === 'ar' ? 'rtl' : 'ltr';
+            languageLabel.textContent = gameState.language === 'ar' ? 'العربية' : 'English';
+            
+            // Update all text elements
+            updateButtonTexts();
+            
+            // Redraw canvas to update any text
+            if (gameState.currentScreen === 'playing') {
+                drawGame();
+            } else if (gameState.currentScreen === 'start') {
+                drawStartScreen();
+            }
+            
+            // Update developer link
+            const currentUrl = encodeURIComponent(window.location.href);
+            developerLink.href = `https://wa.me/966505501575?text=Check%20out%20Number%20Cannon%20game%20at%3A%20${currentUrl}`;
+        }
+
+        function toggleNumerals() {
+            gameState.numerals = numeralToggle.checked ? 'eastern' : 'western';
+            numeralLabel.textContent = gameState.numerals === 'eastern' ? '١٢٣ (Eastern)' : '123 (Western)';
+            
+            // Regenerate equation with new numerals
+            if (currentEquation) {
+                generateEquation();
+            }
+            
+            // Redraw canvas
+            if (gameState.currentScreen === 'playing') {
+                drawGame();
+            } else if (gameState.currentScreen === 'start') {
+                drawStartScreen();
+            }
+        }
+
+        function toggleSound() {
+            gameState.soundEnabled = soundToggle.checked;
+            soundLabel.textContent = gameState.soundEnabled ? 'ON' : 'OFF';
+            
+            // Initialize audio if enabling for first time
+            if (gameState.soundEnabled && !audioContext) {
+                initAudio();
+            }
+        }
+
+        function shareGame() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Number Cannon - Learn Distributive Property',
+                    text: 'Check out this cool educational game that teaches the Distributive Property of multiplication!',
+                    url: window.location.href
+                })
+                .then(() => console.log('Successful share'))
+                .catch((error) => console.log('Error sharing:', error));
+            } else {
+                // Fallback: Copy to clipboard
+                navigator.clipboard.writeText(window.location.href)
+                    .then(() => {
+                        alert(gameState.language === 'ar' ? 
+                            'تم نسخ الرابط إلى الحافظة' : 
+                            'Link copied to clipboard!');
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+            }
+        }
+
+        // Initialize the game when page loads
+        window.addEventListener('load', initGame);
+        window.addEventListener('beforeunload', saveGameData);
+    </script>
+</body>
+</html>
